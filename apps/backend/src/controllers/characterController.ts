@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import Character from '../models/Character.js';
 import { nanoid } from 'nanoid';
 
-export const getAllCharacters = async (req: Request, res: Response): Promise<void> => {
+export const getAllCharacters = async (_req: Request, res: Response): Promise<void> => {
   try {
     const characters = await Character.find().select('-__v');
     res.json(characters);

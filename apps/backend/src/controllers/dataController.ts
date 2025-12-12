@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import dataService from '../services/dataService.js';
 
-export const getClasses = async (req: Request, res: Response): Promise<void> => {
+export const getClasses = async (_req: Request, res: Response): Promise<void> => {
   try {
     const classes = await dataService.getClasses();
 
@@ -37,7 +37,7 @@ export const getClasses = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-export const getRaces = async (req: Request, res: Response): Promise<void> => {
+export const getRaces = async (_req: Request, res: Response): Promise<void> => {
   try {
     const races = await dataService.getRaces();
     res.json(races);
@@ -50,7 +50,7 @@ export const getRaces = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const getBackgrounds = async (req: Request, res: Response): Promise<void> => {
+export const getBackgrounds = async (_req: Request, res: Response): Promise<void> => {
   try {
     const backgrounds = await dataService.getBackgrounds();
     res.json(backgrounds);
