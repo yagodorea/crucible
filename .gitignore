@@ -6,8 +6,5 @@ dist
 .DS_Store
 *.log
 
-# Vercel
-.vercel
-
 .claude
 INSTRUCTIONS.md
