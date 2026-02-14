@@ -40,11 +40,11 @@ This guide will help you deploy your D&D Character Creator to production.
 2. Choose "Connect your application"
 3. Copy the connection string (looks like: `mongodb+srv://dnd-user:<password>@cluster0...`)
 4. **Replace `<password>` with your actual password**
-5. **Replace `<dbname>` with `vibecoding`**
+5. **Replace `<dbname>` with `crucible`**
 
 Final string should look like:
 ```
-mongodb+srv://dnd-user:yourpassword@cluster0.xxxxx.mongodb.net/vibecoding?retryWrites=true&w=majority
+mongodb+srv://dnd-user:yourpassword@cluster0.xxxxx.mongodb.net/crucible?retryWrites=true&w=majority
 ```
 
 ---

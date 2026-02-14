@@ -47,7 +47,7 @@ app.use(express.json());
 connectDB();
 
 app.get('/', (_req: Request, res: Response) => {
-  res.json({ message: 'Welcome to Vibe Coding D&D Character Creator API' });
+  res.json({ message: 'Welcome to Crucible D&D Character Creator API' });
 });
 
 // Auth endpoint - validates API key without protecting itself

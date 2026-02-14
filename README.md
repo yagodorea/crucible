@@ -1,4 +1,4 @@
-# Vibe Coding - D&D Character Creator
+# Crucible - D&D Character Creator
 
 A monorepo application with a Vite React frontend and MongoDB-based Express backend for creating D&D 5e characters.
 
@@ -9,7 +9,7 @@ The frontend deploys automatically to GitHub Pages on push to `main`. See [DEPLO
 ## Project Structure
 
 ```
-vibecoding/
+crucible/
 ├── apps/
 │   ├── frontend/          # Vite React application
 │   └── backend/           # Express + MongoDB API
@@ -117,7 +117,7 @@ npm run build
 ## Project Structure
 
 ```
-vibecoding/
+crucible/
 ├── apps/
 │   ├── frontend/
 │   │   ├── src/

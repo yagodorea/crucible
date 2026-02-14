@@ -1,5 +1,5 @@
 {
-  "name": "vibecoding-monorepo",
+  "name": "crucible-monorepo",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
@@ -12,7 +12,7 @@
     "build": "npm run build --workspaces",
     "install:all": "npm install"
   },
-  "description": "Monorepo for Vibe Coding project",
+  "description": "Monorepo for Crucible project",
   "engines": {
     "node": ">=18.0.0"
   }
