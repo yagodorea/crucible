@@ -26,7 +26,7 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter basename="/crazy-dark-thunder">
+    <BrowserRouter basename="/crucible">
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>

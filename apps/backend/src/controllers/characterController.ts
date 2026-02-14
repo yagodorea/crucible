@@ -1,10 +1,23 @@
 import { Request, Response } from 'express';
-import Character from '../models/Character.js';
 import { nanoid } from 'nanoid';
+import { supabase } from '../config/database.js';
+import {
+  DbCharacter,
+  CharacterInput,
+  toCharacterResponse,
+  toDbInsert,
+  toDbUpdate
+} from '../models/Character.js';
 
 export const getAllCharacters = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const characters = await Character.find().select('-__v');
+    const { data, error } = await supabase
+      .from('characters')
+      .select('*');
+
+    if (error) throw error;
+
+    const characters = (data as DbCharacter[]).map(toCharacterResponse);
     res.json(characters);
   } catch (error) {
     if (error instanceof Error) {
@@ -17,12 +30,21 @@ export const getAllCharacters = async (_req: Request, res: Response): Promise<vo
 
 export const getCharacterById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const character = await Character.findOne({ characterId: req.params.id }).select('-__v');
-    if (!character) {
-      res.status(404).json({ message: 'Character not found' });
-      return;
+    const { data, error } = await supabase
+      .from('characters')
+      .select('*')
+      .eq('character_id', req.params.id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        res.status(404).json({ message: 'Character not found' });
+        return;
+      }
+      throw error;
     }
-    res.json(character);
+
+    res.json(toCharacterResponse(data as DbCharacter));
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ message: error.message });
@@ -34,16 +56,19 @@ export const getCharacterById = async (req: Request, res: Response): Promise<voi
 
 export const createCharacter = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Generate a short, memorable ID (8 characters)
     const characterId = nanoid(8);
+    const input: CharacterInput = req.body;
+    const dbData = toDbInsert(input, characterId);
 
-    const character = new Character({
-      ...req.body,
-      characterId
-    });
+    const { data, error } = await supabase
+      .from('characters')
+      .insert(dbData)
+      .select()
+      .single();
 
-    const newCharacter = await character.save();
-    res.status(201).json(newCharacter);
+    if (error) throw error;
+
+    res.status(201).json(toCharacterResponse(data as DbCharacter));
   } catch (error) {
     if (error instanceof Error) {
       res.status(400).json({ message: error.message });
@@ -55,18 +80,24 @@ export const createCharacter = async (req: Request, res: Response): Promise<void
 
 export const updateCharacter = async (req: Request, res: Response): Promise<void> => {
   try {
-    const character = await Character.findOneAndUpdate(
-      { characterId: req.params.id },
-      req.body,
-      { new: true, runValidators: true }
-    ).select('-__v');
+    const updateData = toDbUpdate(req.body);
 
-    if (!character) {
-      res.status(404).json({ message: 'Character not found' });
-      return;
+    const { data, error } = await supabase
+      .from('characters')
+      .update(updateData)
+      .eq('character_id', req.params.id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        res.status(404).json({ message: 'Character not found' });
+        return;
+      }
+      throw error;
     }
 
-    res.json(character);
+    res.json(toCharacterResponse(data as DbCharacter));
   } catch (error) {
     if (error instanceof Error) {
       res.status(400).json({ message: error.message });
@@ -78,9 +109,22 @@ export const updateCharacter = async (req: Request, res: Response): Promise<void
 
 export const deleteCharacter = async (req: Request, res: Response): Promise<void> => {
   try {
-    const character = await Character.findOneAndDelete({ characterId: req.params.id });
+    const { data, error } = await supabase
+      .from('characters')
+      .delete()
+      .eq('character_id', req.params.id)
+      .select()
+      .single();
 
-    if (!character) {
+    if (error) {
+      if (error.code === 'PGRST116') {
+        res.status(404).json({ message: 'Character not found' });
+        return;
+      }
+      throw error;
+    }
+
+    if (!data) {
       res.status(404).json({ message: 'Character not found' });
       return;
     }

@@ -1,28 +1,31 @@
-import mongoose, { Document, Schema } from 'mongoose';
-
-export interface IUser extends Document {
+// User type for Supabase (maps to 'users' table)
+export interface User {
+  id: string;
   name: string;
   email: string;
-  createdAt: Date;
+  created_at: string;
 }
 
-const userSchema = new Schema<IUser>({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+// Type for creating a new user (without auto-generated fields)
+export interface CreateUserInput {
+  name: string;
+  email: string;
+}
 
-export default mongoose.model<IUser>('User', userSchema);
+// Type for API responses (camelCase for frontend compatibility)
+export interface UserResponse {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+}
+
+// Transform DB row to API response format
+export function toUserResponse(user: User): UserResponse {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.created_at
+  };
+}

@@ -1,13 +1,10 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import { connectDB } from './config/database.js';
+import { testConnection } from './config/database.js';
 import userRoutes from './routes/userRoutes.js';
 import dataRoutes from './routes/dataRoutes.js';
 import characterRoutes from './routes/characterRoutes.js';
 import { validateApiKey, checkApiKey } from './middleware/apiKeyAuth.js';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -44,7 +41,8 @@ app.options('*', cors());
 
 app.use(express.json());
 
-connectDB();
+// Test Supabase connection on startup
+testConnection();
 
 app.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'Welcome to Crucible D&D Character Creator API' });
