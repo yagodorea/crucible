@@ -8,7 +8,14 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing SUPABASE_URL or SUPABASE_ANON_KEY environment variables');
+  const errorMessage = 'Missing SUPABASE_URL or SUPABASE_ANON_KEY environment variables';
+
+  // In test environment, throw an error instead of exiting
+  if (process.env.NODE_ENV === 'test' || process.env.VITEST) {
+    throw new Error(errorMessage);
+  }
+
+  console.error(errorMessage);
   process.exit(1);
 }
 
