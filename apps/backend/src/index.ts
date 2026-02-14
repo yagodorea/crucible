@@ -49,7 +49,7 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 // Auth endpoint - validates API key without protecting itself
-app.post('/api/auth/validate', (req: Request, res: Response) => {
+app.post('/api/auth/validate', async (req: Request, res: Response) => {
   const { apiKey } = req.body;
 
   if (!apiKey) {
@@ -57,8 +57,8 @@ app.post('/api/auth/validate', (req: Request, res: Response) => {
     return;
   }
 
-  const valid = checkApiKey(apiKey);
-  res.json({ valid });
+  const result = await checkApiKey(apiKey);
+  res.json(result);
 });
 
 // Protected routes
