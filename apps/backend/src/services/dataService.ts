@@ -113,6 +113,7 @@ class DataService {
   private racesCache: RaceInfo[] | null = null;
   private backgroundsCache: BackgroundInfo[] | null = null;
   private featsCache: Map<string, FeatDetail> | null = null;
+  private languagesCache: string[] | null = null;
 
   private async getFeatsLookup(): Promise<Map<string, FeatDetail>> {
     if (this.featsCache) {
@@ -308,6 +309,46 @@ class DataService {
     for (const b of backgrounds) sources.add(b.source);
 
     return [...sources].sort();
+  }
+
+  async getLanguages(): Promise<string[]> {
+    if (this.languagesCache) {
+      return this.languagesCache;
+    }
+
+    try {
+      const filePath = join(DATA_PATH, 'languages.json');
+      const fileContent = await readFile(filePath, 'utf-8');
+      const data = JSON.parse(fileContent);
+
+      // Extract unique language names, preferring PHB/XPHB sources (standard languages)
+      const languageMap = new Map<string, number>();
+
+      const priorityMap: Record<string, number> = {
+        'PHB': 100,
+        'XPHB': 90,
+        'ERLW': 80,
+        'GGR': 70,
+        'TCE': 60,
+        'MPMM': 50,
+      };
+
+      for (const lang of data.language || []) {
+        const name = lang.name;
+        const source = lang.source;
+        const priority = priorityMap[source] || 0;
+
+        if (!languageMap.has(name) || priority > languageMap.get(name)!) {
+          languageMap.set(name, priority);
+        }
+      }
+
+      this.languagesCache = [...languageMap.keys()].sort();
+      return this.languagesCache;
+    } catch (error) {
+      console.error('Error loading languages:', error);
+      return [];
+    }
   }
 
   async getClassDetail(className: string): Promise<ClassDetail | null> {

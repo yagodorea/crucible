@@ -57,7 +57,11 @@ const CharactersListPage = () => {
       ) : (
         <div className="characters-grid">
           {characters.map((character) => (
-            <div key={character.characterId} className="character-card">
+            <Link
+              key={character.characterId}
+              to={`/characters/${character.characterId}`}
+              className="character-card"
+            >
               <h2>{character.name}</h2>
               <div className="character-details">
                 <p><strong>Class:</strong> {character.class}</p>
@@ -71,7 +75,7 @@ const CharactersListPage = () => {
               <div className="alignment-badge">
                 {character.alignment.lawChaos} {character.alignment.goodEvil}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

@@ -72,6 +72,11 @@ export const dataAPI = {
     const response = await api.get('/data/sources');
     return response.data;
   },
+
+  getLanguages: async (): Promise<string[]> => {
+    const response = await api.get('/data/languages');
+    return response.data;
+  },
 };
 
 export const characterAPI = {

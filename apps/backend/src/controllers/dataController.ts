@@ -157,3 +157,16 @@ export const getRaceDetail = async (req: Request, res: Response): Promise<void> 
     }
   }
 };
+
+export const getLanguages = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const languages = await dataService.getLanguages();
+    res.json(languages);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'Unknown error occurred' });
+    }
+  }
+};

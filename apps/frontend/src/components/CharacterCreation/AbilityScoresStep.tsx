@@ -7,20 +7,30 @@ interface AbilityScoresStepProps {
 }
 
 const AbilityScoresStep = ({ abilityScores, onUpdate }: AbilityScoresStepProps) => {
-  const [scores, setScores] = useState<AbilityScores>(
-    abilityScores || {
-      strength: 10,
-      dexterity: 10,
-      constitution: 10,
-      intelligence: 10,
-      wisdom: 10,
-      charisma: 10,
-    }
-  );
+  const defaultScores: AbilityScores = {
+    strength: 10,
+    dexterity: 10,
+    constitution: 10,
+    intelligence: 10,
+    wisdom: 10,
+    charisma: 10,
+  };
 
+  const [scores, setScores] = useState<AbilityScores>(abilityScores || defaultScores);
+
+  // Sync local state with prop when it changes (e.g., from localStorage)
   useEffect(() => {
+    if (abilityScores) {
+      setScores(abilityScores);
+    }
+  }, [abilityScores]);
+
+  // Only notify parent when scores actually change from user interaction
+  useEffect(() => {
+    // Don't call onUpdate on initial mount if we already have abilityScores from props
+    if (abilityScores) return;
     onUpdate(scores);
-  }, [scores, onUpdate]);
+  }, [scores, onUpdate, abilityScores]);
 
   const handleScoreChange = (ability: keyof AbilityScores, value: number) => {
     setScores((prev) => ({

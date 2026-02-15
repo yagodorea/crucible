@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import type { Character } from '../../types/character';
 import ClassSelector from './ClassSelector';
@@ -74,9 +74,13 @@ const CharacterCreator = () => {
     setSearchParams({ step: currentStep.toString() });
   }, [currentStep, setSearchParams]);
 
-  const updateCharacter = (updates: Partial<Character>) => {
+  const updateCharacter = useCallback((updates: Partial<Character>) => {
     setCharacter((prev) => ({ ...prev, ...updates }));
-  };
+  }, []);
+
+  const handleAbilityScoresUpdate = useCallback((abilityScores: Character['abilityScores']) => {
+    updateCharacter({ abilityScores });
+  }, [updateCharacter]);
 
   const handleSourceToggle = (source: string) => {
     setEnabledSources(prev =>
@@ -250,7 +254,7 @@ const CharacterCreator = () => {
         {currentStep === 4 && (
           <AbilityScoresStep
             abilityScores={character.abilityScores}
-            onUpdate={(abilityScores) => updateCharacter({ abilityScores })}
+            onUpdate={handleAbilityScoresUpdate}
           />
         )}
 

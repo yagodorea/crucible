@@ -1,5 +1,5 @@
 import express from 'express';
-import { getClasses, getClassDetail, getSubclassDetail, getRaces, getRaceDetail, getBackgrounds, getBackgroundDetail, getSources } from '../controllers/dataController.js';
+import { getClasses, getClassDetail, getSubclassDetail, getRaces, getRaceDetail, getBackgrounds, getBackgroundDetail, getSources, getLanguages } from '../controllers/dataController.js';
 
 const router = express.Router();
 
@@ -11,5 +11,6 @@ router.get('/races/:raceName', getRaceDetail);
 router.get('/backgrounds', getBackgrounds);
 router.get('/backgrounds/:backgroundName', getBackgroundDetail);
 router.get('/sources', getSources);
+router.get('/languages', getLanguages);
 
 export default router;
