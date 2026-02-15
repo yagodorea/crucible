@@ -84,6 +84,14 @@ const CharacterCreator = () => {
     );
   };
 
+  const handleClearAllSources = () => {
+    setEnabledSources([]);
+  };
+
+  const handleSelectAllSources = () => {
+    setEnabledSources(availableSources);
+  };
+
   const nextStep = () => {
     if (currentStep < 6) {
       setCurrentStep((currentStep + 1) as Step);
@@ -207,6 +215,8 @@ const CharacterCreator = () => {
           availableSources={availableSources}
           enabledSources={enabledSources}
           onToggle={handleSourceToggle}
+          onClearAll={handleClearAllSources}
+          onSelectAll={handleSelectAllSources}
         />
       )}
 

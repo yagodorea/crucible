@@ -5,9 +5,11 @@ interface SourceToggleProps {
   availableSources: string[];
   enabledSources: string[];
   onToggle: (source: string) => void;
+  onClearAll: () => void;
+  onSelectAll: () => void;
 }
 
-const SourceToggle = ({ availableSources, enabledSources, onToggle }: SourceToggleProps) => {
+const SourceToggle = ({ availableSources, enabledSources, onToggle, onClearAll, onSelectAll }: SourceToggleProps) => {
   const [showMore, setShowMore] = useState(false);
 
   const coreSources = availableSources.filter(s => CORE_SOURCES.includes(s));
@@ -24,10 +26,29 @@ const SourceToggle = ({ availableSources, enabledSources, onToggle }: SourceTogg
     </button>
   );
 
+  const hasEnabledSources = enabledSources.length > 0;
+  const allSelected = enabledSources.length === availableSources.length;
+
   return (
     <div className="source-toggle">
       <div className="source-toggle-row">
         {coreSources.map(renderChip)}
+        {hasEnabledSources && (
+          <button
+            className="clear-sources-btn"
+            onClick={onClearAll}
+          >
+            Clear All
+          </button>
+        )}
+        {!allSelected && (
+          <button
+            className="select-sources-btn"
+            onClick={onSelectAll}
+          >
+            Select All
+          </button>
+        )}
         {extraSources.length > 0 && (
           <button
             className="more-sources-toggle"
