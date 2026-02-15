@@ -253,6 +253,20 @@ class DataService {
     return classes;
   }
 
+  private normalizeSpeed(speed: { walk?: number; fly?: number | boolean } | number | undefined): { walk?: number; fly?: number } | undefined {
+    if (typeof speed === 'number') {
+      return { walk: speed };
+    }
+    if (speed && typeof speed === 'object') {
+      const flySpeed = speed.fly === true ? speed.walk : (typeof speed.fly === 'number' ? speed.fly : undefined);
+      return {
+        walk: speed.walk,
+        fly: flySpeed,
+      };
+    }
+    return speed;
+  }
+
   async getRaces(): Promise<RaceInfo[]> {
     if (this.racesCache) {
       return this.racesCache;
@@ -263,10 +277,15 @@ class DataService {
       const fileContent = await readFile(filePath, 'utf-8');
       const data = JSON.parse(fileContent);
 
-      // Filter for 2024 edition races
-      const races = data.race?.filter((r: {edition?: string; _copy?: unknown}) =>
-        (r.edition === 'one' || !r.edition) && !r._copy
-      ) || [];
+      // Filter for 2024 edition races and normalize speed format
+      const races = data.race
+        ?.filter((r: {edition?: string; _copy?: unknown}) =>
+          (r.edition === 'one' || !r.edition) && !r._copy
+        )
+        .map((r: RaceInfo & { speed?: { walk?: number; fly?: number } | number }) => ({
+          ...r,
+          speed: this.normalizeSpeed(r.speed),
+        })) || [];
 
       this.racesCache = races;
       return races;
@@ -739,7 +758,7 @@ class DataService {
     }
   }
 
-  private extractRaceMechanics(race: { source?: string; ability?: Array<Record<string, number>>; size?: string[]; speed?: { walk?: number; fly?: number }; languageProficiencies?: unknown[]; entries?: unknown[] }) {
+  private extractRaceMechanics(race: { source?: string; ability?: Array<Record<string, number>>; size?: string[]; speed?: { walk?: number; fly?: number } | number; languageProficiencies?: unknown[]; entries?: unknown[] }) {
     const mechanics: { source: string; ability?: Array<Record<string, number>>; size?: string[]; speed?: { walk?: number; fly?: number }; languages?: string[]; traits?: string[] } = {
       source: race.source || 'Unknown',
     };
@@ -750,8 +769,8 @@ class DataService {
     // Extract size
     mechanics.size = race.size;
 
-    // Extract speed
-    mechanics.speed = race.speed;
+    // Extract speed (normalize if it's a plain number)
+    mechanics.speed = this.normalizeSpeed(race.speed);
 
     // Extract languages
     const languages: string[] = [];
