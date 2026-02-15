@@ -39,6 +39,39 @@ export interface ClassInfo {
   };
 }
 
+export interface ClassDetailInfo {
+  name: string;
+  source: string;
+  description: string;
+  primaryAbility: string;
+  complexity: string;
+  hd?: {
+    number: number;
+    faces: number;
+  };
+  proficiency?: string[];
+  startingProficiencies?: {
+    armor?: string[];
+    weapons?: string[];
+    skills?: Array<{ choose?: { from: string[]; count: number } }>;
+  };
+  subclasses: string[];
+}
+
+export interface SubclassFeatureInfo {
+  name: string;
+  level: number;
+  entries: string[];
+}
+
+export interface SubclassDetailInfo {
+  name: string;
+  source: string;
+  className: string;
+  description: string;
+  features: SubclassFeatureInfo[];
+}
+
 export interface RaceInfo {
   name: string;
   source: string;

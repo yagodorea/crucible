@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Character, ClassInfo, RaceInfo, BackgroundInfo } from '../types/character';
+import type { Character, ClassInfo, ClassDetailInfo, SubclassDetailInfo, RaceInfo, BackgroundInfo } from '../types/character';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 const STORAGE_KEY = 'dnd-api-key';
@@ -35,6 +35,16 @@ api.interceptors.response.use(
 export const dataAPI = {
   getClasses: async (): Promise<ClassInfo[]> => {
     const response = await api.get('/data/classes');
+    return response.data;
+  },
+
+  getClassDetail: async (className: string): Promise<ClassDetailInfo> => {
+    const response = await api.get(`/data/classes/${className}`);
+    return response.data;
+  },
+
+  getSubclassDetail: async (className: string, subclassName: string): Promise<SubclassDetailInfo> => {
+    const response = await api.get(`/data/classes/${className}/subclasses/${encodeURIComponent(subclassName)}`);
     return response.data;
   },
 

@@ -257,7 +257,6 @@ const CharacterCreator = () => {
       </div>
 
       <footer className="creator-footer">
-        {renderNavButtons('bottom')}
       </footer>
     </div>
   );

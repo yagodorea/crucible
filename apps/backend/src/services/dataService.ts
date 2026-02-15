@@ -33,6 +33,34 @@ export interface BackgroundInfo {
   feats?: unknown[];
 }
 
+export interface SubclassFeatureInfo {
+  name: string;
+  level: number;
+  entries: string[];
+}
+
+export interface SubclassDetail {
+  name: string;
+  source: string;
+  className: string;
+  description: string;
+  features: SubclassFeatureInfo[];
+}
+
+export interface ClassDetail {
+  name: string;
+  source: string;
+  description: string;
+  hd?: { number: number; faces: number };
+  proficiency?: string[];
+  startingProficiencies?: {
+    armor?: string[];
+    weapons?: string[];
+    skills?: Array<{ choose?: { from: string[]; count: number } }>;
+  };
+  subclasses: string[];
+}
+
 class DataService {
   private classesCache: ClassInfo[] | null = null;
   private racesCache: RaceInfo[] | null = null;
@@ -106,6 +134,118 @@ class DataService {
     for (const b of backgrounds) sources.add(b.source);
 
     return [...sources].sort();
+  }
+
+  async getClassDetail(className: string): Promise<ClassDetail | null> {
+    try {
+      const classFilePath = join(DATA_PATH, 'class', `class-${className}.json`);
+      const classContent = await readFile(classFilePath, 'utf-8');
+      const classData = JSON.parse(classContent);
+
+      // Get the "one" edition class data
+      const oneClass = classData.class?.find((c: { edition?: string }) => c.edition === 'one');
+      if (!oneClass) return null;
+
+      // Read fluff file for description
+      let description = '';
+      try {
+        const fluffFilePath = join(DATA_PATH, 'class', `fluff-class-${className}.json`);
+        const fluffContent = await readFile(fluffFilePath, 'utf-8');
+        const fluffData = JSON.parse(fluffContent);
+
+        const xphbFluff = fluffData.classFluff?.find(
+          (f: { source?: string }) => f.source === 'XPHB'
+        );
+        if (xphbFluff?.entries) {
+          // Extract text entries from the first section
+          const section = xphbFluff.entries.find(
+            (e: { type?: string }) => e.type === 'section'
+          );
+          if (section?.entries) {
+            description = section.entries
+              .filter((e: unknown) => typeof e === 'string')
+              .join('\n\n');
+          }
+        }
+      } catch {
+        // Fluff file may not exist for all classes
+      }
+
+      // Extract XPHB-native subclass names
+      const subclasses = (classData.subclass || [])
+        .filter(
+          (sc: { source?: string; classSource?: string }) =>
+            sc.source === 'XPHB' && sc.classSource === 'XPHB'
+        )
+        .map((sc: { name: string }) => sc.name);
+
+      return {
+        name: oneClass.name,
+        source: oneClass.source,
+        description,
+        hd: oneClass.hd,
+        proficiency: oneClass.proficiency,
+        startingProficiencies: oneClass.startingProficiencies,
+        subclasses,
+      };
+    } catch (error) {
+      console.error(`Error loading class detail for ${className}:`, error);
+      return null;
+    }
+  }
+
+  async getSubclassDetail(className: string, subclassName: string): Promise<SubclassDetail | null> {
+    try {
+      const classFilePath = join(DATA_PATH, 'class', `class-${className}.json`);
+      const classContent = await readFile(classFilePath, 'utf-8');
+      const classData = JSON.parse(classContent);
+
+      // Find the XPHB subclass entry
+      const subclass = (classData.subclass || []).find(
+        (sc: { name: string; source?: string; classSource?: string }) =>
+          sc.source === 'XPHB' && sc.classSource === 'XPHB' &&
+          sc.name.toLowerCase() === subclassName.toLowerCase()
+      );
+      if (!subclass) return null;
+
+      // Extract text entries from matching subclassFeature entries
+      const shortName = subclass.shortName || subclass.name;
+      const allFeatures: SubclassFeatureInfo[] = (classData.subclassFeature || [])
+        .filter(
+          (f: { source?: string; subclassSource?: string; subclassShortName?: string }) =>
+            f.source === 'XPHB' && f.subclassSource === 'XPHB' &&
+            f.subclassShortName === shortName
+        )
+        .map((f: { name: string; level: number; entries?: unknown[] }) => ({
+          name: f.name,
+          level: f.level,
+          entries: (f.entries || []).filter((e: unknown) => typeof e === 'string'),
+        }));
+
+      // The level 3 intro feature (same name as subclass) gives the description
+      const introFeature = allFeatures.find(
+        (f: SubclassFeatureInfo) => f.name === subclass.name && f.level === 3
+      );
+      const description = introFeature?.entries
+        .filter((e: string) => !e.startsWith('{@i '))
+        .join('\n\n') || '';
+
+      // All other features are the ability features
+      const features = allFeatures.filter(
+        (f: SubclassFeatureInfo) => f.name !== subclass.name
+      );
+
+      return {
+        name: subclass.name,
+        source: subclass.source,
+        className: subclass.className,
+        description,
+        features,
+      };
+    } catch (error) {
+      console.error(`Error loading subclass detail for ${className}/${subclassName}:`, error);
+      return null;
+    }
   }
 
   async getBackgrounds(): Promise<BackgroundInfo[]> {

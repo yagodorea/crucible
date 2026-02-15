@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { dataAPI } from '../../services/api';
 import type { ClassInfo } from '../../types/character';
+import ClassInfoModal from './ClassInfoModal';
 
 interface ClassSelectorProps {
   selectedClass?: string;
@@ -12,6 +13,7 @@ const ClassSelector = ({ selectedClass, onSelect, enabledSources }: ClassSelecto
   const [classes, setClasses] = useState<ClassInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [infoClassName, setInfoClassName] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchClasses = async () => {
@@ -48,7 +50,19 @@ const ClassSelector = ({ selectedClass, onSelect, enabledSources }: ClassSelecto
             className={`class-card ${selectedClass === classInfo.name ? 'selected' : ''}`}
             onClick={() => onSelect(classInfo.name)}
           >
-            <h3>{classInfo.name}</h3>
+            <div className="class-card-header">
+              <h3>{classInfo.name}</h3>
+              <button
+                className="info-btn"
+                title={`More info about ${classInfo.name}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setInfoClassName(classInfo.name);
+                }}
+              >
+                i
+              </button>
+            </div>
             <div className="class-tags">
               <span className="tag primary-ability">{classInfo.primaryAbility}</span>
               <span className={`tag complexity complexity-${classInfo.complexity.toLowerCase()}`}>
@@ -61,6 +75,13 @@ const ClassSelector = ({ selectedClass, onSelect, enabledSources }: ClassSelecto
           </div>
         ))}
       </div>
+
+      {infoClassName && (
+        <ClassInfoModal
+          className={infoClassName}
+          onClose={() => setInfoClassName(null)}
+        />
+      )}
     </div>
   );
 };
