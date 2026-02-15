@@ -75,7 +75,7 @@ app.use('/api/characters', validateApiKey, characterRoutes);
 
 // Serve frontend static files in production
 if (process.env.NODE_ENV === 'production') {
-    const publicPath = path.join(__dirname, '..', 'public');
+    const publicPath = path.join(__dirname, 'public');
     app.use(express.static(publicPath));
 
     // SPA fallback - serve index.html for all non-API routes
