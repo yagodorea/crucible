@@ -26,6 +26,7 @@ const ClassInfoModal = ({ className, onClose }: ClassInfoModalProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeSubclass, setActiveSubclass] = useState<string | null>(null);
+  const [expandedFeatures, setExpandedFeatures] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -162,6 +163,61 @@ const ClassInfoModal = ({ className, onClose }: ClassInfoModalProps) => {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {detail.features.length > 0 && (
+          <div className="modal-section">
+            <h3>Class Features</h3>
+            {(() => {
+              const featuresByLevel = detail.features.reduce((acc, feature) => {
+                if (!acc[feature.level]) acc[feature.level] = [];
+                acc[feature.level].push(feature);
+                return acc;
+              }, {} as Record<number, typeof detail.features>);
+
+              const toggleFeature = (featureId: string) => {
+                setExpandedFeatures(prev => {
+                  const next = new Set(prev);
+                  if (next.has(featureId)) {
+                    next.delete(featureId);
+                  } else {
+                    next.add(featureId);
+                  }
+                  return next;
+                });
+              };
+
+              return Object.entries(featuresByLevel)
+                .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                .map(([level, features]) => (
+                  <div key={level} className="level-features">
+                    <h4>Level {level}</h4>
+                    {features.map((feature) => {
+                      const featureId = `${feature.name}-${feature.level}`;
+                      const isExpanded = expandedFeatures.has(featureId);
+                      return (
+                        <div key={featureId} className="class-feature">
+                          <button
+                            className="feature-toggle"
+                            onClick={() => toggleFeature(featureId)}
+                          >
+                            <span className={`feature-toggle-icon ${isExpanded ? 'expanded' : ''}`}>▶</span>
+                            <span className="feature-name">{feature.name}</span>
+                          </button>
+                          {isExpanded && (
+                            <div className="feature-content">
+                              {feature.entries.map((entry, i) => (
+                                <p key={i}>{cleanMarkup(entry)}</p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ));
+            })()}
           </div>
         )}
       </>

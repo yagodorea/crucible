@@ -39,6 +39,12 @@ export interface ClassInfo {
   };
 }
 
+export interface ClassFeatureInfo {
+  name: string;
+  level: number;
+  entries: string[];
+}
+
 export interface ClassDetailInfo {
   name: string;
   source: string;
@@ -56,6 +62,7 @@ export interface ClassDetailInfo {
     skills?: Array<{ choose?: { from: string[]; count: number } }>;
   };
   subclasses: string[];
+  features: ClassFeatureInfo[];
 }
 
 export interface SubclassFeatureInfo {

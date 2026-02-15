@@ -47,6 +47,12 @@ export interface SubclassDetail {
   features: SubclassFeatureInfo[];
 }
 
+export interface ClassFeatureInfo {
+  name: string;
+  level: number;
+  entries: string[];
+}
+
 export interface ClassDetail {
   name: string;
   source: string;
@@ -59,6 +65,7 @@ export interface ClassDetail {
     skills?: Array<{ choose?: { from: string[]; count: number } }>;
   };
   subclasses: string[];
+  features: ClassFeatureInfo[];
 }
 
 class DataService {
@@ -179,6 +186,19 @@ class DataService {
         )
         .map((sc: { name: string }) => sc.name);
 
+      // Extract class features from XPHB source
+      const features: ClassFeatureInfo[] = (classData.classFeature || [])
+        .filter(
+          (f: { source?: string; classSource?: string }) =>
+            f.source === 'XPHB' && f.classSource === 'XPHB'
+        )
+        .map((f: { name: string; level: number; entries?: unknown[] }) => ({
+          name: f.name,
+          level: f.level,
+          entries: (f.entries || []).filter((e: unknown) => typeof e === 'string'),
+        }))
+        .sort((a: ClassFeatureInfo, b: ClassFeatureInfo) => a.level - b.level);
+
       return {
         name: oneClass.name,
         source: oneClass.source,
@@ -187,6 +207,7 @@ class DataService {
         proficiency: oneClass.proficiency,
         startingProficiencies: oneClass.startingProficiencies,
         subclasses,
+        features,
       };
     } catch (error) {
       console.error(`Error loading class detail for ${className}:`, error);
