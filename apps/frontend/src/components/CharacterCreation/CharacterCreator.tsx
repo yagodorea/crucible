@@ -192,6 +192,9 @@ const CharacterCreator = () => {
   return (
     <div className="character-creator">
       <header className="creator-header">
+        <div className="creator-header-top">
+          <Link to="/" className="btn-cancel">Cancel</Link>
+        </div>
         <h1>D&D Character Creator</h1>
         <div className="step-indicator">
           <span>Step {currentStep} of 6</span>
