@@ -14,28 +14,12 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function migrate() {
-  // 1. Create api_keys table if it doesn't exist
-  const { error: tableError } = await supabase.rpc('exec_sql', {
-    sql: `
-      CREATE TABLE IF NOT EXISTS api_keys (
-        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        key_hash TEXT NOT NULL UNIQUE,
-        label TEXT,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        last_used_at TIMESTAMPTZ
-      );
-      CREATE INDEX IF NOT EXISTS idx_api_keys_key_hash ON api_keys(key_hash);
-    `,
-  });
-
-  if (tableError) {
-    // Table may already exist or RPC may not be available — try inserting directly
-    console.warn('Note: Could not run CREATE TABLE via RPC (table may already exist):', tableError.message);
-  }
-
-  // 2. Upsert master user
+/**
+ * Seeds the database with a master user and API key.
+ * Requires the schema from supabase-schema.sql to be applied first.
+ */
+async function seed() {
+  // 1. Upsert master user
   const { data: user, error: userError } = await supabase
     .from('users')
     .upsert({ name: 'Master', email: 'master@crucible.local' }, { onConflict: 'email' })
@@ -49,11 +33,11 @@ async function migrate() {
 
   console.log(`Master user: ${user.id} (${user.email})`);
 
-  // 3. Generate API key
+  // 2. Generate API key
   const rawKey = randomBytes(32).toString('hex');
   const keyHash = createHash('sha256').update(rawKey).digest('hex');
 
-  // 4. Insert API key
+  // 3. Insert API key
   const { error: keyError } = await supabase
     .from('api_keys')
     .insert({ user_id: user.id, key_hash: keyHash, label: 'master-key' });
@@ -68,7 +52,7 @@ async function migrate() {
   console.log('===========================================================\n');
 }
 
-migrate().catch((err) => {
-  console.error('Migration failed:', err);
+seed().catch((err: Error) => {
+  console.error('Seeding failed:', err);
   process.exit(1);
 });

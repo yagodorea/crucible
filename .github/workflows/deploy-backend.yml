@@ -1,0 +1,63 @@
+name: Deploy Backend to GCP Compute Engine
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: crucible-backend
+  REGISTRY: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/crucible
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+
+      - name: Build Docker image
+        run: |
+          docker build --platform linux/amd64 \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            apps/backend
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Deploy to Compute Engine
+        run: |
+          gcloud compute ssh ${{ secrets.GCP_INSTANCE_NAME }} \
+            --zone=${{ secrets.GCP_INSTANCE_ZONE }} \
+            --command="
+              docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} && \
+              docker stop crucible-backend || true && \
+              docker rm crucible-backend || true && \
+              docker run -d \
+                --name crucible-backend \
+                --restart unless-stopped \
+                -p 80:5001 \
+                -e NODE_ENV=production \
+                -e PORT=5001 \
+                -e SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+                -e SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} \
+                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            "
