@@ -7,10 +7,16 @@ export interface AbilityScores {
   charisma: number;
 }
 
-export interface Alignment {
-  lawChaos: 'lawful' | 'neutral' | 'chaotic';
-  goodEvil: 'good' | 'neutral' | 'evil';
-}
+export type Alignment =
+  | 'LAWFUL_GOOD'
+  | 'LAWFUL_NEUTRAL'
+  | 'LAWFUL_EVIL'
+  | 'NEUTRAL_GOOD'
+  | 'TRUE_NEUTRAL'
+  | 'NEUTRAL_EVIL'
+  | 'CHAOTIC_GOOD'
+  | 'CHAOTIC_NEUTRAL'
+  | 'CHAOTIC_EVIL';
 
 export interface Character {
   characterId?: string;
@@ -20,7 +26,7 @@ export interface Character {
   species: string;
   level: number;
   abilityScores: AbilityScores;
-  alignment: Alignment;
+  alignment: Alignment | '';
   languages: string[];
   appearance?: string;
   lore?: string;

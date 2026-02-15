@@ -4,6 +4,14 @@ import { characterAPI } from '../services/api';
 import type { Character } from '../types/character';
 import './CharacterDetailsPage.css';
 
+const formatAlignment = (alignment: string): string => {
+  return alignment
+    .toLowerCase()
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 const CharacterDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -65,7 +73,7 @@ const CharacterDetailsPage = () => {
   }
 
   const abilityScores = character.abilityScores || {};
-  const alignment = character.alignment || { lawChaos: 'neutral', goodEvil: 'neutral' };
+  const alignment = character.alignment || 'TRUE_NEUTRAL';
   const languages = character.languages || [];
   const modifier = (score: number) => Math.floor((score - 10) / 2);
 
@@ -87,8 +95,8 @@ const CharacterDetailsPage = () => {
               <span className="background">{character.background}</span>
             </div>
           </div>
-          <div className={`alignment-badge alignment-${alignment.lawChaos} ${alignment.goodEvil}`}>
-            {alignment.lawChaos} {alignment.goodEvil}
+          <div className="alignment-badge">
+            {formatAlignment(alignment)}
           </div>
         </div>
 
@@ -139,8 +147,8 @@ const CharacterDetailsPage = () => {
               </div>
               <div className="info-item">
                 <span className="info-label">Alignment</span>
-                <span className="info-value" style={{ textTransform: 'capitalize' }}>
-                  {alignment.lawChaos} {alignment.goodEvil}
+                <span className="info-value">
+                  {formatAlignment(alignment)}
                 </span>
               </div>
             </div>

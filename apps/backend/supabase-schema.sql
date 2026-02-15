@@ -32,10 +32,19 @@ CREATE TABLE api_keys (
 CREATE INDEX idx_api_keys_key_hash ON api_keys(key_hash);
 
 -- ============================================
--- ALIGNMENT ENUM TYPES
+-- ALIGNMENT ENUM TYPE
 -- ============================================
-CREATE TYPE law_chaos AS ENUM ('lawful', 'neutral', 'chaotic');
-CREATE TYPE good_evil AS ENUM ('good', 'neutral', 'evil');
+CREATE TYPE alignment AS ENUM (
+  'LAWFUL_GOOD',
+  'LAWFUL_NEUTRAL',
+  'LAWFUL_EVIL',
+  'NEUTRAL_GOOD',
+  'TRUE_NEUTRAL',
+  'NEUTRAL_EVIL',
+  'CHAOTIC_GOOD',
+  'CHAOTIC_NEUTRAL',
+  'CHAOTIC_EVIL'
+);
 
 -- ============================================
 -- CHARACTERS TABLE
@@ -58,8 +67,7 @@ CREATE TABLE characters (
   charisma INTEGER NOT NULL CHECK (charisma >= 1 AND charisma <= 30),
 
   -- Alignment
-  law_chaos law_chaos,
-  good_evil good_evil,
+  alignment alignment NOT NULL,
 
   -- Other fields
   languages TEXT[] DEFAULT '{}',

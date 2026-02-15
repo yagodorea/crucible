@@ -1,3 +1,15 @@
+// Alignment type - single enum combining law/chaos and good/evil axes
+export type Alignment =
+  | 'LAWFUL_GOOD'
+  | 'LAWFUL_NEUTRAL'
+  | 'LAWFUL_EVIL'
+  | 'NEUTRAL_GOOD'
+  | 'TRUE_NEUTRAL'
+  | 'NEUTRAL_EVIL'
+  | 'CHAOTIC_GOOD'
+  | 'CHAOTIC_NEUTRAL'
+  | 'CHAOTIC_EVIL';
+
 // Database row type (flat structure matching Supabase table)
 export interface DbCharacter {
   id: string;
@@ -13,8 +25,7 @@ export interface DbCharacter {
   intelligence: number;
   wisdom: number;
   charisma: number;
-  law_chaos: 'lawful' | 'neutral' | 'chaotic' | null;
-  good_evil: 'good' | 'neutral' | 'evil' | null;
+  alignment: Alignment;
   languages: string[];
   appearance: string | null;
   lore: string | null;
@@ -32,11 +43,6 @@ export interface IAbilityScores {
   charisma: number;
 }
 
-export interface IAlignment {
-  lawChaos: 'lawful' | 'neutral' | 'chaotic';
-  goodEvil: 'good' | 'neutral' | 'evil';
-}
-
 export interface CharacterResponse {
   id: string;
   characterId: string;
@@ -46,7 +52,7 @@ export interface CharacterResponse {
   species: string;
   level: number;
   abilityScores: IAbilityScores;
-  alignment: IAlignment;
+  alignment: Alignment;
   languages: string[];
   appearance?: string;
   lore?: string;
@@ -62,7 +68,7 @@ export interface CharacterInput {
   species: string;
   level: number;
   abilityScores: IAbilityScores;
-  alignment: IAlignment;
+  alignment: Alignment;
   languages?: string[];
   appearance?: string;
   lore?: string;
@@ -86,10 +92,7 @@ export function toCharacterResponse(row: DbCharacter): CharacterResponse {
       wisdom: row.wisdom,
       charisma: row.charisma
     },
-    alignment: {
-      lawChaos: row.law_chaos || 'neutral',
-      goodEvil: row.good_evil || 'neutral'
-    },
+    alignment: row.alignment,
     languages: row.languages || [],
     appearance: row.appearance || undefined,
     lore: row.lore || undefined,
@@ -113,8 +116,7 @@ export function toDbInsert(input: CharacterInput, characterId: string): Omit<DbC
     intelligence: input.abilityScores.intelligence,
     wisdom: input.abilityScores.wisdom,
     charisma: input.abilityScores.charisma,
-    law_chaos: input.alignment.lawChaos,
-    good_evil: input.alignment.goodEvil,
+    alignment: input.alignment,
     languages: input.languages || [],
     appearance: input.appearance || null,
     lore: input.lore || null
@@ -133,6 +135,7 @@ export function toDbUpdate(input: Partial<CharacterInput>): Record<string, unkno
   if (input.languages !== undefined) update.languages = input.languages;
   if (input.appearance !== undefined) update.appearance = input.appearance;
   if (input.lore !== undefined) update.lore = input.lore;
+  if (input.alignment !== undefined) update.alignment = input.alignment;
 
   if (input.abilityScores) {
     update.strength = input.abilityScores.strength;
@@ -143,10 +146,6 @@ export function toDbUpdate(input: Partial<CharacterInput>): Record<string, unkno
     update.charisma = input.abilityScores.charisma;
   }
 
-  if (input.alignment) {
-    update.law_chaos = input.alignment.lawChaos;
-    update.good_evil = input.alignment.goodEvil;
-  }
 
   return update;
 }

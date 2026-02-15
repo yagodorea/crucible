@@ -1,25 +1,23 @@
 import type { Alignment } from '../../types/character';
 
 interface AlignmentSelectorProps {
-  alignment?: Alignment;
+  alignment?: Alignment | '';
   onSelect: (alignment: Alignment) => void;
 }
 
+const alignments: { value: Alignment; label: string }[] = [
+  { value: 'LAWFUL_GOOD', label: 'Lawful Good' },
+  { value: 'LAWFUL_NEUTRAL', label: 'Lawful Neutral' },
+  { value: 'LAWFUL_EVIL', label: 'Lawful Evil' },
+  { value: 'NEUTRAL_GOOD', label: 'Neutral Good' },
+  { value: 'TRUE_NEUTRAL', label: 'True Neutral' },
+  { value: 'NEUTRAL_EVIL', label: 'Neutral Evil' },
+  { value: 'CHAOTIC_GOOD', label: 'Chaotic Good' },
+  { value: 'CHAOTIC_NEUTRAL', label: 'Chaotic Neutral' },
+  { value: 'CHAOTIC_EVIL', label: 'Chaotic Evil' },
+];
+
 const AlignmentSelector = ({ alignment, onSelect }: AlignmentSelectorProps) => {
-  const lawChaosOptions: Array<'lawful' | 'neutral' | 'chaotic'> = ['lawful', 'neutral', 'chaotic'];
-  const goodEvilOptions: Array<'good' | 'neutral' | 'evil'> = ['good', 'neutral', 'evil'];
-
-  const getAlignmentName = (lawChaos: string, goodEvil: string): string => {
-    if (lawChaos === 'neutral' && goodEvil === 'neutral') {
-      return 'True Neutral';
-    }
-    return `${lawChaos.charAt(0).toUpperCase() + lawChaos.slice(1)} ${goodEvil.charAt(0).toUpperCase() + goodEvil.slice(1)}`;
-  };
-
-  const handleSelect = (lawChaos: typeof alignment.lawChaos, goodEvil: typeof alignment.goodEvil) => {
-    onSelect({ lawChaos, goodEvil });
-  };
-
   return (
     <div className="alignment-selector">
       <p className="step-description">
@@ -28,18 +26,14 @@ const AlignmentSelector = ({ alignment, onSelect }: AlignmentSelectorProps) => {
       </p>
 
       <div className="alignment-grid">
-        {lawChaosOptions.map((lc) => (
-          goodEvilOptions.map((ge) => (
-            <div
-              key={`${lc}-${ge}`}
-              className={`alignment-option ${
-                alignment?.lawChaos === lc && alignment?.goodEvil === ge ? 'selected' : ''
-              }`}
-              onClick={() => handleSelect(lc, ge)}
-            >
-              <h3>{getAlignmentName(lc, ge)}</h3>
-            </div>
-          ))
+        {alignments.map((alignmentOption) => (
+          <div
+            key={alignmentOption.value}
+            className={`alignment-option ${alignment === alignmentOption.value ? 'selected' : ''}`}
+            onClick={() => onSelect(alignmentOption.value)}
+          >
+            <h3>{alignmentOption.label}</h3>
+          </div>
         ))}
       </div>
 

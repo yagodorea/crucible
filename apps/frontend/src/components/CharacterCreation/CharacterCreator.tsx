@@ -5,14 +5,13 @@ import ClassSelector from './ClassSelector';
 import BackgroundSelector from './BackgroundSelector';
 import SpeciesSelector from './SpeciesSelector';
 import AbilityScoresStep from './AbilityScoresStep';
-import AlignmentSelector from './AlignmentSelector';
 import DetailsForm from './DetailsForm';
 import SourceToggle from './SourceToggle';
 import { characterAPI, dataAPI } from '../../services/api';
 import { DEFAULT_ENABLED, SOURCES_STORAGE_KEY } from './sourceBooks';
 import './CharacterCreator.css';
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 const STORAGE_KEY = 'dnd-character-draft';
 
@@ -21,7 +20,7 @@ const CharacterCreator = () => {
 
   // Initialize step from URL or default to 1
   const urlStep = parseInt(searchParams.get('step') || '1');
-  const initialStep = (urlStep >= 1 && urlStep <= 6 ? urlStep : 1) as Step;
+  const initialStep = (urlStep >= 1 && urlStep <= 5 ? urlStep : 1) as Step;
 
   const [currentStep, setCurrentStep] = useState<Step>(initialStep);
 
@@ -97,7 +96,7 @@ const CharacterCreator = () => {
   };
 
   const nextStep = () => {
-    if (currentStep < 6) {
+    if (currentStep < 5) {
       setCurrentStep((currentStep + 1) as Step);
     }
   };
@@ -149,8 +148,7 @@ const CharacterCreator = () => {
       case 2: return 'Choose a Background';
       case 3: return 'Choose a Species';
       case 4: return 'Determine Ability Scores';
-      case 5: return 'Choose Alignment';
-      case 6: return 'Fill in Details';
+      case 5: return 'Fill in Details';
       default: return '';
     }
   };
@@ -165,7 +163,7 @@ const CharacterCreator = () => {
         Previous
       </button>
 
-      {currentStep < 6 ? (
+      {currentStep < 5 ? (
         <button
           onClick={nextStep}
           className="btn btn-primary"
@@ -209,7 +207,7 @@ const CharacterCreator = () => {
         </div>
         <h1>D&D Character Creator</h1>
         <div className="step-indicator">
-          <span>Step {currentStep} of 6</span>
+          <span>Step {currentStep} of 5</span>
           <span className="step-title">{getStepTitle()}</span>
         </div>
       </header>
@@ -259,13 +257,6 @@ const CharacterCreator = () => {
         )}
 
         {currentStep === 5 && (
-          <AlignmentSelector
-            alignment={character.alignment}
-            onSelect={(alignment) => updateCharacter({ alignment })}
-          />
-        )}
-
-        {currentStep === 6 && (
           <DetailsForm
             character={character}
             onUpdate={updateCharacter}

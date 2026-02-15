@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Character } from '../../types/character';
+import type { Character, Alignment } from '../../types/character';
 import { dataAPI } from '../../services/api';
 
 interface DetailsFormProps {
@@ -7,8 +7,21 @@ interface DetailsFormProps {
   onUpdate: (updates: Partial<Character>) => void;
 }
 
+const alignments: { value: Alignment; label: string }[] = [
+  { value: 'LAWFUL_GOOD', label: 'Lawful Good' },
+  { value: 'LAWFUL_NEUTRAL', label: 'Lawful Neutral' },
+  { value: 'LAWFUL_EVIL', label: 'Lawful Evil' },
+  { value: 'NEUTRAL_GOOD', label: 'Neutral Good' },
+  { value: 'TRUE_NEUTRAL', label: 'True Neutral' },
+  { value: 'NEUTRAL_EVIL', label: 'Neutral Evil' },
+  { value: 'CHAOTIC_GOOD', label: 'Chaotic Good' },
+  { value: 'CHAOTIC_NEUTRAL', label: 'Chaotic Neutral' },
+  { value: 'CHAOTIC_EVIL', label: 'Chaotic Evil' },
+];
+
 const DetailsForm = ({ character, onUpdate }: DetailsFormProps) => {
   const [name, setName] = useState(character.name || '');
+  const [alignment, setAlignment] = useState<Alignment | ''>(character.alignment || '');
   const [appearance, setAppearance] = useState(character.appearance || '');
   const [lore, setLore] = useState(character.lore || '');
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>(character.languages || ['Common']);
@@ -30,11 +43,12 @@ const DetailsForm = ({ character, onUpdate }: DetailsFormProps) => {
   useEffect(() => {
     onUpdate({
       name,
+      alignment: alignment || undefined,
       appearance: appearance || undefined,
       lore: lore || undefined,
       languages: selectedLanguages,
     });
-  }, [name, appearance, lore, selectedLanguages, onUpdate]);
+  }, [name, alignment, appearance, lore, selectedLanguages, onUpdate]);
 
   const toggleLanguage = (language: string) => {
     setSelectedLanguages(prev => {
@@ -62,6 +76,21 @@ const DetailsForm = ({ character, onUpdate }: DetailsFormProps) => {
           className="form-input"
           required
         />
+      </div>
+
+      <div className="form-group">
+        <label>Alignment *</label>
+        <div className="alignment-grid" style={{ marginTop: '8px' }}>
+          {alignments.map((alignmentOption) => (
+            <div
+              key={alignmentOption.value}
+              className={`alignment-option ${alignment === alignmentOption.value ? 'selected' : ''}`}
+              onClick={() => setAlignment(alignmentOption.value)}
+            >
+              <h3>{alignmentOption.label}</h3>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="form-group">
@@ -205,9 +234,7 @@ const DetailsForm = ({ character, onUpdate }: DetailsFormProps) => {
             <strong>Species:</strong> {character.species || 'Not selected'}
           </div>
           <div className="summary-item">
-            <strong>Alignment:</strong> {character.alignment
-              ? `${character.alignment.lawChaos} ${character.alignment.goodEvil}`
-              : 'Not selected'}
+            <strong>Alignment:</strong> {alignment || 'Not selected'}
           </div>
         </div>
       </div>
