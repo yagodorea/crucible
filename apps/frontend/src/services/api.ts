@@ -47,6 +47,11 @@ export const dataAPI = {
     const response = await api.get('/data/backgrounds');
     return response.data;
   },
+
+  getSources: async (): Promise<string[]> => {
+    const response = await api.get('/data/sources');
+    return response.data;
+  },
 };
 
 export const characterAPI = {

@@ -93,6 +93,21 @@ class DataService {
     }
   }
 
+  async getSources(): Promise<string[]> {
+    const [classes, races, backgrounds] = await Promise.all([
+      this.getClasses(),
+      this.getRaces(),
+      this.getBackgrounds(),
+    ]);
+
+    const sources = new Set<string>();
+    for (const c of classes) sources.add(c.source);
+    for (const r of races) sources.add(r.source);
+    for (const b of backgrounds) sources.add(b.source);
+
+    return [...sources].sort();
+  }
+
   async getBackgrounds(): Promise<BackgroundInfo[]> {
     if (this.backgroundsCache) {
       return this.backgroundsCache;

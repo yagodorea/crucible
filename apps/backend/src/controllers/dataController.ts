@@ -50,6 +50,19 @@ export const getRaces = async (_req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const getSources = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const sources = await dataService.getSources();
+    res.json(sources);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'Unknown error occurred' });
+    }
+  }
+};
+
 export const getBackgrounds = async (_req: Request, res: Response): Promise<void> => {
   try {
     const backgrounds = await dataService.getBackgrounds();

@@ -5,9 +5,10 @@ import type { ClassInfo } from '../../types/character';
 interface ClassSelectorProps {
   selectedClass?: string;
   onSelect: (className: string) => void;
+  enabledSources: string[];
 }
 
-const ClassSelector = ({ selectedClass, onSelect }: ClassSelectorProps) => {
+const ClassSelector = ({ selectedClass, onSelect, enabledSources }: ClassSelectorProps) => {
   const [classes, setClasses] = useState<ClassInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +29,8 @@ const ClassSelector = ({ selectedClass, onSelect }: ClassSelectorProps) => {
     fetchClasses();
   }, []);
 
+  const filteredClasses = classes.filter(c => enabledSources.includes(c.source));
+
   if (loading) return <div className="loading">Loading classes...</div>;
   if (error) return <div className="error">{error}</div>;
 
@@ -39,7 +42,7 @@ const ClassSelector = ({ selectedClass, onSelect }: ClassSelectorProps) => {
       </p>
 
       <div className="class-grid">
-        {classes.map((classInfo) => (
+        {filteredClasses.map((classInfo) => (
           <div
             key={classInfo.name}
             className={`class-card ${selectedClass === classInfo.name ? 'selected' : ''}`}

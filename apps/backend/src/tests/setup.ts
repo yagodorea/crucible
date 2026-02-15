@@ -50,10 +50,9 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
 }
 
 beforeAll(() => {
-    // Setup runs before all tests
     console.log('✓ Test environment initialized');
 });
 
 afterAll(() => {
-    // Cleanup if needed
+    // Per-file teardown (cleanup is handled globally in globalSetup.ts)
 });

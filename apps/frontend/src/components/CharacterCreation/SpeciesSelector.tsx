@@ -5,9 +5,10 @@ import type { RaceInfo } from '../../types/character';
 interface SpeciesSelectorProps {
   selectedSpecies?: string;
   onSelect: (species: string) => void;
+  enabledSources: string[];
 }
 
-const SpeciesSelector = ({ selectedSpecies, onSelect }: SpeciesSelectorProps) => {
+const SpeciesSelector = ({ selectedSpecies, onSelect, enabledSources }: SpeciesSelectorProps) => {
   const [races, setRaces] = useState<RaceInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +29,8 @@ const SpeciesSelector = ({ selectedSpecies, onSelect }: SpeciesSelectorProps) =>
     fetchRaces();
   }, []);
 
+  const filteredRaces = races.filter(r => enabledSources.includes(r.source));
+
   if (loading) return <div className="loading">Loading species...</div>;
   if (error) return <div className="error">{error}</div>;
 
@@ -38,7 +41,7 @@ const SpeciesSelector = ({ selectedSpecies, onSelect }: SpeciesSelectorProps) =>
       </p>
 
       <div className="species-list">
-        {races.map((race) => (
+        {filteredRaces.map((race) => (
           <div
             key={race.name}
             className={`species-item ${selectedSpecies === race.name ? 'selected' : ''}`}

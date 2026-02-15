@@ -60,10 +60,10 @@ describe('Auth API Integration Tests', () => {
     });
   });
 
-  describe('GET /', () => {
+  describe('GET /api', () => {
     it('should return welcome message', async () => {
       const response = await request(app)
-        .get('/')
+        .get('/api')
         .expect(200);
 
       expect(response.body).toEqual({

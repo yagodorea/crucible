@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { dataAPI } from '../../services/api';
 import type { BackgroundInfo } from '../../types/character';
 
 interface BackgroundSelectorProps {
   selectedBackground?: string;
   onSelect: (background: string) => void;
+  enabledSources: string[];
 }
 
-const BackgroundSelector = ({ selectedBackground, onSelect }: BackgroundSelectorProps) => {
-  const [backgrounds, setBackgrounds] = useState<BackgroundInfo[]>([]);
+const BackgroundSelector = ({ selectedBackground, onSelect, enabledSources }: BackgroundSelectorProps) => {
+  const [allBackgrounds, setAllBackgrounds] = useState<BackgroundInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +17,7 @@ const BackgroundSelector = ({ selectedBackground, onSelect }: BackgroundSelector
     const fetchBackgrounds = async () => {
       try {
         const data = await dataAPI.getBackgrounds();
-        setBackgrounds(data);
+        setAllBackgrounds(data);
       } catch (err) {
         setError('Failed to load backgrounds');
         console.error(err);
@@ -27,6 +28,24 @@ const BackgroundSelector = ({ selectedBackground, onSelect }: BackgroundSelector
 
     fetchBackgrounds();
   }, []);
+
+  // Filter by enabled sources, then merge duplicates by name
+  const backgrounds = useMemo(() => {
+    const filtered = allBackgrounds.filter(bg => enabledSources.includes(bg.source));
+    const merged = filtered.reduce<Record<string, BackgroundInfo>>((acc, bg) => {
+      const existing = acc[bg.name];
+      if (existing) {
+        const existingSources = existing.source.split(', ');
+        if (!existingSources.includes(bg.source)) {
+          existing.source = `${existing.source}, ${bg.source}`;
+        }
+      } else {
+        acc[bg.name] = { ...bg };
+      }
+      return acc;
+    }, {});
+    return Object.values(merged);
+  }, [allBackgrounds, enabledSources]);
 
   if (loading) return <div className="loading">Loading backgrounds...</div>;
   if (error) return <div className="error">{error}</div>;

@@ -7,7 +7,9 @@ import SpeciesSelector from './SpeciesSelector';
 import AbilityScoresStep from './AbilityScoresStep';
 import AlignmentSelector from './AlignmentSelector';
 import DetailsForm from './DetailsForm';
-import { characterAPI } from '../../services/api';
+import SourceToggle from './SourceToggle';
+import { characterAPI, dataAPI } from '../../services/api';
+import { DEFAULT_ENABLED, SOURCES_STORAGE_KEY } from './sourceBooks';
 import './CharacterCreator.css';
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
@@ -39,10 +41,33 @@ const CharacterCreator = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdCharacterId, setCreatedCharacterId] = useState<string | null>(null);
 
+  const [availableSources, setAvailableSources] = useState<string[]>([]);
+  const [enabledSources, setEnabledSources] = useState<string[]>(() => {
+    const saved = localStorage.getItem(SOURCES_STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return DEFAULT_ENABLED;
+      }
+    }
+    return DEFAULT_ENABLED;
+  });
+
   // Save character to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(character));
   }, [character]);
+
+  // Fetch available sources on mount
+  useEffect(() => {
+    dataAPI.getSources().then(setAvailableSources).catch(console.error);
+  }, []);
+
+  // Persist enabled sources to localStorage
+  useEffect(() => {
+    localStorage.setItem(SOURCES_STORAGE_KEY, JSON.stringify(enabledSources));
+  }, [enabledSources]);
 
   // Update URL when step changes
   useEffect(() => {
@@ -51,6 +76,12 @@ const CharacterCreator = () => {
 
   const updateCharacter = (updates: Partial<Character>) => {
     setCharacter((prev) => ({ ...prev, ...updates }));
+  };
+
+  const handleSourceToggle = (source: string) => {
+    setEnabledSources(prev =>
+      prev.includes(source) ? prev.filter(s => s !== source) : [...prev, source]
+    );
   };
 
   const nextStep = () => {
@@ -112,6 +143,35 @@ const CharacterCreator = () => {
     }
   };
 
+  const renderNavButtons = (position: 'top' | 'bottom') => (
+    <div className={`creator-nav creator-nav-${position}`}>
+      <button
+        onClick={prevStep}
+        disabled={currentStep === 1}
+        className="btn btn-secondary"
+      >
+        Previous
+      </button>
+
+      {currentStep < 6 ? (
+        <button
+          onClick={nextStep}
+          className="btn btn-primary"
+        >
+          Next
+        </button>
+      ) : (
+        <button
+          onClick={handleSubmit}
+          disabled={!isFormComplete() || isSubmitting}
+          className="btn btn-success"
+        >
+          {isSubmitting ? 'Creating...' : 'Create Character'}
+        </button>
+      )}
+    </div>
+  );
+
   if (createdCharacterId) {
     return (
       <div className="character-creator">
@@ -139,11 +199,22 @@ const CharacterCreator = () => {
         </div>
       </header>
 
+      {availableSources.length > 0 && (
+        <SourceToggle
+          availableSources={availableSources}
+          enabledSources={enabledSources}
+          onToggle={handleSourceToggle}
+        />
+      )}
+
+      {renderNavButtons('top')}
+
       <div className="creator-content">
         {currentStep === 1 && (
           <ClassSelector
             selectedClass={character.class}
             onSelect={(className) => updateCharacter({ class: className })}
+            enabledSources={enabledSources}
           />
         )}
 
@@ -151,6 +222,7 @@ const CharacterCreator = () => {
           <BackgroundSelector
             selectedBackground={character.background}
             onSelect={(background) => updateCharacter({ background })}
+            enabledSources={enabledSources}
           />
         )}
 
@@ -158,6 +230,7 @@ const CharacterCreator = () => {
           <SpeciesSelector
             selectedSpecies={character.species}
             onSelect={(species) => updateCharacter({ species })}
+            enabledSources={enabledSources}
           />
         )}
 
@@ -184,30 +257,7 @@ const CharacterCreator = () => {
       </div>
 
       <footer className="creator-footer">
-        <button
-          onClick={prevStep}
-          disabled={currentStep === 1}
-          className="btn btn-secondary"
-        >
-          Previous
-        </button>
-
-        {currentStep < 6 ? (
-          <button
-            onClick={nextStep}
-            className="btn btn-primary"
-          >
-            Next
-          </button>
-        ) : (
-          <button
-            onClick={handleSubmit}
-            disabled={!isFormComplete() || isSubmitting}
-            className="btn btn-success"
-          >
-            {isSubmitting ? 'Creating...' : 'Create Character'}
-          </button>
-        )}
+        {renderNavButtons('bottom')}
       </footer>
     </div>
   );
