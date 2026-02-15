@@ -35,7 +35,9 @@ jobs:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
 
       - name: Copy frontend to backend
-        run: cp -r apps/frontend/dist apps/backend/public
+        run: |
+          rm -rf apps/backend/public
+          cp -r apps/frontend/dist apps/backend/public
 
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
