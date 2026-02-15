@@ -282,7 +282,8 @@
   color: #333;
 }
 
-.background-item-header {
+.background-item-header,
+.species-item-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;

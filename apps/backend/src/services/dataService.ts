@@ -55,6 +55,24 @@ export interface BackgroundDetail {
   descriptions: BackgroundDescriptionSource[];
 }
 
+export interface RaceDetail {
+  name: string;
+  descriptions: RaceDescriptionSource[];
+}
+
+export interface RaceDescriptionSource {
+  source: string;
+  description: string;
+  ability?: Array<Record<string, number>>;
+  size?: string[];
+  speed?: {
+    walk?: number;
+    fly?: number;
+  };
+  languages?: string[];
+  traits?: string[];
+}
+
 export interface SubclassFeatureInfo {
   name: string;
   level: number;
@@ -130,38 +148,67 @@ class DataService {
   private extractFeatDescription(entries: unknown[]): string {
     const result: string[] = [];
 
+    const cleanMarkup = (text: string): string => {
+      // Extract text from {@...} markup, keeping the words
+      // Handles: {@tag text|...} and {@tag text}
+      let cleaned = text.replace(/{@\w+\s+([^|}]+)(?:\|[^}]*)?}/g, '$1');
+      // Handles: {@tagtext|...} and {@tagtext}
+      cleaned = cleaned.replace(/{@\w+([^|}\s]+)(?:\||})[^}]*}/g, '$1');
+      return cleaned;
+    };
+
     for (const entry of entries) {
       if (typeof entry === 'string') {
-        // Extract text from {@...} markup, keeping the words
-        // First handle patterns with space: {@tag text|source}
-        let text = entry.replace(/{@\w+\s+([^|}\s]+)(?:\s[^|}]*)?(?:\|[^}]*)?}/g, '$1');
-        // Then handle patterns without space: {@tagtext|source}
-        text = text.replace(/{@\w+([^|}\s]+)(?:\||})[^}]*}/g, '$1');
-        result.push(text);
+        result.push(cleanMarkup(entry));
       } else if (entry && typeof entry === 'object') {
         const obj = entry as Record<string, unknown>;
         if (obj.type === 'entries' && obj.name && Array.isArray(obj.entries)) {
           const subEntries = (obj.entries as unknown[])
             .filter((e: unknown) => typeof e === 'string')
-            .map((e: string) => {
-              let text = e.replace(/{@\w+\s+([^|}\s]+)(?:\s[^|}]*)?(?:\|[^}]*)?}/g, '$1');
-              text = text.replace(/{@\w+([^|}\s]+)(?:\||})[^}]*}/g, '$1');
-              return text;
-            });
+            .map((e: string) => cleanMarkup(e));
           if (subEntries.length > 0) {
             result.push(`${obj.name}: ${subEntries.join(' ')}`);
           }
         } else if (obj.entry) {
           if (typeof obj.entry === 'string') {
-            let text = obj.entry.replace(/{@\w+\s+([^|}\s]+)(?:\s[^|}]*)?(?:\|[^}]*)?}/g, '$1');
-            text = text.replace(/{@\w+([^|}\s]+)(?:\||})[^}]*}/g, '$1');
-            result.push(text);
+            result.push(cleanMarkup(obj.entry));
           }
         }
       }
     }
 
     return result.join(' ').replace(/\s+/g, ' ').trim();
+  }
+
+  private cleanMarkupInArray(arr: unknown[]): unknown[] {
+    const cleanMarkup = (text: string): string => {
+      // Handles: {@tag text|...} and {@tag text}
+      let cleaned = text.replace(/{@\w+\s+([^|}]+)(?:\|[^}]*)?}/g, '$1');
+      // Handles: {@tagtext|...} and {@tagtext}
+      cleaned = cleaned.replace(/{@\w+([^|}\s]+)(?:\||})[^}]*}/g, '$1');
+      return cleaned;
+    };
+
+    return arr.map(item => {
+      if (typeof item === 'string') {
+        return cleanMarkup(item);
+      } else if (Array.isArray(item)) {
+        return this.cleanMarkupInArray(item);
+      } else if (item && typeof item === 'object') {
+        const cleaned: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(item)) {
+          if (typeof value === 'string') {
+            cleaned[key] = cleanMarkup(value);
+          } else if (Array.isArray(value)) {
+            cleaned[key] = this.cleanMarkupInArray(value);
+          } else {
+            cleaned[key] = value;
+          }
+        }
+        return cleaned;
+      }
+      return item;
+    });
   }
 
   private resolveFeatReferences(featRefs: string[], featsLookup: Map<string, FeatDetail>): FeatDetail[] {
@@ -272,9 +319,7 @@ class DataService {
             (e: { type?: string }) => e.type === 'section'
           );
           if (section?.entries) {
-            description = section.entries
-              .filter((e: unknown) => typeof e === 'string')
-              .join('\n\n');
+            description = this.extractFluffDescription(section.entries);
           }
         }
       } catch {
@@ -295,12 +340,20 @@ class DataService {
           (f: { source?: string; classSource?: string }) =>
             f.source === classSource && f.classSource === classSource
         )
-        .map((f: { name: string; level: number; entries?: unknown[] }) => ({
-          name: f.name,
-          level: f.level,
-          entries: (f.entries || []).filter((e: unknown) => typeof e === 'string'),
-        }))
+        .map((f: { name: string; level: number; entries?: unknown[] }) => {
+          const rawEntries = (f.entries || []).filter((e: unknown) => typeof e === 'string');
+          return {
+            name: f.name,
+            level: f.level,
+            entries: this.cleanMarkupInArray(rawEntries) as string[],
+          };
+        })
         .sort((a: ClassFeatureInfo, b: ClassFeatureInfo) => a.level - b.level);
+
+      // Clean markup in startingProficiencies arrays
+      const cleanedProficiencies = oneClass.startingProficiencies
+        ? this.cleanMarkupInArray([oneClass.startingProficiencies])[0] as Record<string, unknown>
+        : undefined;
 
       return {
         name: oneClass.name,
@@ -308,7 +361,7 @@ class DataService {
         description,
         hd: oneClass.hd,
         proficiency: oneClass.proficiency,
-        startingProficiencies: oneClass.startingProficiencies,
+        startingProficiencies: cleanedProficiencies,
         subclasses,
         features,
       };
@@ -345,11 +398,14 @@ class DataService {
             f.source === classSource && f.subclassSource === classSource &&
             f.subclassShortName === shortName
         )
-        .map((f: { name: string; level: number; entries?: unknown[] }) => ({
-          name: f.name,
-          level: f.level,
-          entries: (f.entries || []).filter((e: unknown) => typeof e === 'string'),
-        }));
+        .map((f: { name: string; level: number; entries?: unknown[] }) => {
+          const rawEntries = (f.entries || []).filter((e: unknown) => typeof e === 'string');
+          return {
+            name: f.name,
+            level: f.level,
+            entries: this.cleanMarkupInArray(rawEntries) as string[],
+          };
+        });
 
       // The level 3 intro feature (same name as subclass) gives the description
       const introFeature = allFeatures.find(
@@ -544,24 +600,184 @@ class DataService {
   private extractFluffDescription(entries: unknown[]): string {
     const result: string[] = [];
 
+    const cleanMarkup = (text: string): string => {
+      // Extract text from {@...} markup, keeping the words
+      // Handles: {@tag text|...} and {@tag text}
+      let cleaned = text.replace(/{@\w+\s+([^|}]+)(?:\|[^}]*)?}/g, '$1');
+      // Handles: {@tagtext|...} and {@tagtext}
+      cleaned = cleaned.replace(/{@\w+([^|}\s]+)(?:\||})[^}]*}/g, '$1');
+      return cleaned;
+    };
+
     for (const entry of entries) {
       if (typeof entry === 'string') {
-        result.push(entry);
+        result.push(cleanMarkup(entry));
       } else if (entry && typeof entry === 'object') {
         const obj = entry as Record<string, unknown>;
-        if (obj.type === 'entries' && Array.isArray(obj.entries)) {
+        const type = obj.type as string;
+
+        // Handle nested entries
+        if (type === 'entries' && Array.isArray(obj.entries)) {
           result.push(this.extractFluffDescription(obj.entries));
         } else if (obj.entry) {
           if (typeof obj.entry === 'string') {
-            result.push(obj.entry);
+            result.push(cleanMarkup(obj.entry));
           } else if (Array.isArray(obj.entry)) {
             result.push(this.extractFluffDescription(obj.entry));
           }
+        }
+        // Handle table rows (array of cells)
+        else if (type === 'row' && Array.isArray(obj.row)) {
+          for (const cell of obj.row) {
+            if (typeof cell === 'string') {
+              result.push(cleanMarkup(cell));
+            } else if (cell && typeof cell === 'object') {
+              const cellObj = cell as Record<string, unknown>;
+              if (typeof cellObj.entry === 'string') {
+                result.push(cleanMarkup(cellObj.entry));
+              } else if (Array.isArray(cellObj.entry)) {
+                result.push(this.extractFluffDescription(cellObj.entry));
+              }
+            }
+          }
+        }
+        // Handle quotes
+        else if (type === 'quote' && Array.isArray(obj.entries)) {
+          result.push(this.extractFluffDescription(obj.entries));
+        }
+        // Handle inline wrapper (usually just contains entries)
+        else if (type === 'inline' && Array.isArray(obj.entries)) {
+          result.push(this.extractFluffDescription(obj.entries));
+        }
+        // Handle other objects with entries array
+        else if (Array.isArray(obj.entries)) {
+          result.push(this.extractFluffDescription(obj.entries));
         }
       }
     }
 
     return result.join('\n\n');
+  }
+
+  async getRaceDetail(raceName: string): Promise<RaceDetail | null> {
+    try {
+      // Read races.json for mechanical data
+      const raceFilePath = join(DATA_PATH, 'races.json');
+      const raceContent = await readFile(raceFilePath, 'utf-8');
+      const raceData = JSON.parse(raceContent);
+
+      // Read fluff-races.json for descriptions
+      let fluffData: { raceFluff?: unknown[] } | null = null;
+      try {
+        const fluffFilePath = join(DATA_PATH, 'fluff-races.json');
+        const fluffContent = await readFile(fluffFilePath, 'utf-8');
+        fluffData = JSON.parse(fluffContent);
+      } catch {
+        // Fluff file may not exist for all races
+      }
+
+      // Get all races by name (including non-2024 editions for NPCs like Gnoll)
+      const raceByName = new Map<string, Array<{ source: string; ability?: Array<Record<string, number>>; size?: string[]; speed?: { walk?: number; fly?: number }; languages?: string[]; traits?: string[] }>>();
+
+      (raceData.race || []).forEach((r: { name?: string; edition?: string; source?: string; _copy?: unknown; ability?: Array<Record<string, number>>; size?: string[]; speed?: { walk?: number; fly?: number }; languageProficiencies?: unknown[]; entries?: unknown[] }) => {
+        // Include races that don't have _copy (not duplicates of other races)
+        if (!r._copy && r.name) {
+          if (!raceByName.has(r.name)) {
+            raceByName.set(r.name, []);
+          }
+          raceByName.get(r.name)!.push(this.extractRaceMechanics(r));
+        }
+      });
+
+      const matchingRaces = raceByName.get(raceName);
+      if (!matchingRaces || matchingRaces.length === 0) return null;
+
+      // Find all matching fluffs by name
+      const matchingFluffs = (fluffData?.raceFluff || []).filter(
+        (f: unknown) => (f as { name?: string }).name?.toLowerCase() === raceName.toLowerCase()
+      );
+
+      // First, add descriptions from races that have fluff
+      const descriptions: RaceDescriptionSource[] = matchingFluffs.map((fluff: unknown) => {
+        const fluffObj = fluff as { source?: string; entries?: unknown[] };
+        const matchingMechanics = matchingRaces.find(r => r.source === fluffObj.source);
+        return {
+          source: fluffObj.source || 'Unknown',
+          description: fluffObj.entries ? this.extractFluffDescription(fluffObj.entries) : '',
+          ability: matchingMechanics?.ability,
+          size: matchingMechanics?.size,
+          speed: matchingMechanics?.speed,
+          languages: matchingMechanics?.languages,
+          traits: matchingMechanics?.traits,
+        };
+      });
+
+      // Then, add any races that have mechanical data but no fluff
+      for (const raceMechanics of matchingRaces) {
+        if (!descriptions.some(d => d.source === raceMechanics.source)) {
+          descriptions.push({
+            source: raceMechanics.source,
+            description: '',
+            ability: raceMechanics.ability,
+            size: raceMechanics.size,
+            speed: raceMechanics.speed,
+            languages: raceMechanics.languages,
+            traits: raceMechanics.traits,
+          });
+        }
+      }
+
+      if (descriptions.length === 0) return null;
+
+      return {
+        name: raceName,
+        descriptions,
+      };
+    } catch (error) {
+      console.error(`Error loading race detail for ${raceName}:`, error);
+      return null;
+    }
+  }
+
+  private extractRaceMechanics(race: { source?: string; ability?: Array<Record<string, number>>; size?: string[]; speed?: { walk?: number; fly?: number }; languageProficiencies?: unknown[]; entries?: unknown[] }) {
+    const mechanics: { source: string; ability?: Array<Record<string, number>>; size?: string[]; speed?: { walk?: number; fly?: number }; languages?: string[]; traits?: string[] } = {
+      source: race.source || 'Unknown',
+    };
+
+    // Extract ability scores
+    mechanics.ability = race.ability;
+
+    // Extract size
+    mechanics.size = race.size;
+
+    // Extract speed
+    mechanics.speed = race.speed;
+
+    // Extract languages
+    const languages: string[] = [];
+    if (race.languageProficiencies) {
+      for (const lang of race.languageProficiencies as unknown[]) {
+        const langObj = lang as Record<string, unknown>;
+        Object.keys(langObj).filter(k => k !== 'type' && typeof langObj[k] === 'boolean' && langObj[k] === true).forEach(k => languages.push(k.charAt(0).toUpperCase() + k.slice(1)));
+      }
+    }
+    mechanics.languages = languages.length > 0 ? languages : undefined;
+
+    // Extract trait names from entries
+    const traits: string[] = [];
+    if (race.entries && Array.isArray(race.entries)) {
+      for (const entry of race.entries) {
+        if (entry && typeof entry === 'object') {
+          const entryObj = entry as Record<string, unknown>;
+          if (entryObj.name && typeof entryObj.name === 'string') {
+            traits.push(entryObj.name);
+          }
+        }
+      }
+    }
+    mechanics.traits = traits.length > 0 ? traits : undefined;
+
+    return mechanics;
   }
 
 }

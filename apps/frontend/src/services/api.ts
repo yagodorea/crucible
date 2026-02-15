@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Character, ClassInfo, ClassDetailInfo, SubclassDetailInfo, RaceInfo, BackgroundInfo, BackgroundDetailInfo } from '../types/character';
+import type { Character, ClassInfo, ClassDetailInfo, SubclassDetailInfo, RaceInfo, RaceDetailInfo, BackgroundInfo, BackgroundDetailInfo } from '../types/character';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 const STORAGE_KEY = 'dnd-api-key';
@@ -50,6 +50,11 @@ export const dataAPI = {
 
   getRaces: async (): Promise<RaceInfo[]> => {
     const response = await api.get('/data/races');
+    return response.data;
+  },
+
+  getRaceDetail: async (raceName: string): Promise<RaceDetailInfo> => {
+    const response = await api.get(`/data/races/${encodeURIComponent(raceName)}`);
     return response.data;
   },
 

@@ -115,3 +115,21 @@ export interface BackgroundDetailInfo {
   name: string;
   descriptions: BackgroundDescriptionSource[];
 }
+
+export interface RaceDescriptionSource {
+  source: string;
+  description: string;
+  ability?: Array<Record<string, number>>;
+  size?: string[];
+  speed?: {
+    walk?: number;
+    fly?: number;
+  };
+  languages?: string[];
+  traits?: string[];
+}
+
+export interface RaceDetailInfo {
+  name: string;
+  descriptions: RaceDescriptionSource[];
+}

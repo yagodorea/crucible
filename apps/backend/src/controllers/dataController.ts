@@ -138,3 +138,22 @@ export const getBackgroundDetail = async (req: Request, res: Response): Promise<
     }
   }
 };
+
+export const getRaceDetail = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { raceName } = req.params;
+    const detail = await dataService.getRaceDetail(raceName);
+    if (!detail) {
+      res.status(404).json({ message: 'Race not found' });
+      return;
+    }
+
+    res.json(detail);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'Unknown error occurred' });
+    }
+  }
+};
