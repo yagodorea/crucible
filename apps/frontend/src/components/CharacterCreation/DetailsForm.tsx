@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Character, Alignment } from '../../types/character';
+import { type Character, type Alignment, formatAlignment } from '../../types/character';
 import { dataAPI } from '../../services/api';
 
 interface DetailsFormProps {
@@ -234,7 +234,7 @@ const DetailsForm = ({ character, onUpdate }: DetailsFormProps) => {
             <strong>Species:</strong> {character.species || 'Not selected'}
           </div>
           <div className="summary-item">
-            <strong>Alignment:</strong> {alignment || 'Not selected'}
+            <strong>Alignment:</strong> {alignment ? formatAlignment(alignment) : 'Not selected'}
           </div>
         </div>
       </div>

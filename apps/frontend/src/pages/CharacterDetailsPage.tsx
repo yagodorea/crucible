@@ -1,16 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { characterAPI } from '../services/api';
-import type { Character } from '../types/character';
+import { formatAlignment, type Character } from '../types/character';
 import './CharacterDetailsPage.css';
-
-const formatAlignment = (alignment: string): string => {
-  return alignment
-    .toLowerCase()
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
 
 const CharacterDetailsPage = () => {
   const { id } = useParams<{ id: string }>();

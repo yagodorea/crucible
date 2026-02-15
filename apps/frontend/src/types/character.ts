@@ -18,6 +18,14 @@ export type Alignment =
   | 'CHAOTIC_NEUTRAL'
   | 'CHAOTIC_EVIL';
 
+export const formatAlignment = (alignment: string): string => {
+  return alignment
+    .toLowerCase()
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 export interface Character {
   characterId?: string;
   name: string;
