@@ -33,6 +33,28 @@ export interface BackgroundInfo {
   feats?: unknown[];
 }
 
+export interface FeatDetail {
+  name: string;
+  source: string;
+  description: string;
+}
+
+export interface BackgroundDescriptionSource {
+  source: string;
+  description: string;
+  abilityBonuses?: Array<{ from: string[]; count: number; weights?: number[] }>;
+  feats?: FeatDetail[];
+  skillProficiencies?: string[];
+  toolProficiencies?: string[];
+  languages?: string[];
+  equipment?: string[];
+}
+
+export interface BackgroundDetail {
+  name: string;
+  descriptions: BackgroundDescriptionSource[];
+}
+
 export interface SubclassFeatureInfo {
   name: string;
   level: number;
@@ -72,6 +94,85 @@ class DataService {
   private classesCache: ClassInfo[] | null = null;
   private racesCache: RaceInfo[] | null = null;
   private backgroundsCache: BackgroundInfo[] | null = null;
+  private featsCache: Map<string, FeatDetail> | null = null;
+
+  private async getFeatsLookup(): Promise<Map<string, FeatDetail>> {
+    if (this.featsCache) {
+      return this.featsCache;
+    }
+
+    try {
+      const filePath = join(DATA_PATH, 'feats.json');
+      const fileContent = await readFile(filePath, 'utf-8');
+      const data = JSON.parse(fileContent);
+
+      const lookup = new Map<string, FeatDetail>();
+      for (const feat of data.feat || []) {
+        const featObj = feat as { name?: string; source?: string; entries?: unknown[] };
+        if (featObj.name && featObj.source) {
+          const key = `${featObj.name.toLowerCase()}|${featObj.source.toLowerCase()}`;
+          lookup.set(key, {
+            name: featObj.name,
+            source: featObj.source,
+            description: this.extractFeatDescription(featObj.entries || []),
+          });
+        }
+      }
+
+      this.featsCache = lookup;
+      return lookup;
+    } catch (error) {
+      console.error('Error loading feats:', error);
+      return new Map();
+    }
+  }
+
+  private extractFeatDescription(entries: unknown[]): string {
+    const result: string[] = [];
+
+    for (const entry of entries) {
+      if (typeof entry === 'string') {
+        // Extract text from {@...} markup, keeping the words
+        // First handle patterns with space: {@tag text|source}
+        let text = entry.replace(/{@\w+\s+([^|}\s]+)(?:\s[^|}]*)?(?:\|[^}]*)?}/g, '$1');
+        // Then handle patterns without space: {@tagtext|source}
+        text = text.replace(/{@\w+([^|}\s]+)(?:\||})[^}]*}/g, '$1');
+        result.push(text);
+      } else if (entry && typeof entry === 'object') {
+        const obj = entry as Record<string, unknown>;
+        if (obj.type === 'entries' && obj.name && Array.isArray(obj.entries)) {
+          const subEntries = (obj.entries as unknown[])
+            .filter((e: unknown) => typeof e === 'string')
+            .map((e: string) => {
+              let text = e.replace(/{@\w+\s+([^|}\s]+)(?:\s[^|}]*)?(?:\|[^}]*)?}/g, '$1');
+              text = text.replace(/{@\w+([^|}\s]+)(?:\||})[^}]*}/g, '$1');
+              return text;
+            });
+          if (subEntries.length > 0) {
+            result.push(`${obj.name}: ${subEntries.join(' ')}`);
+          }
+        } else if (obj.entry) {
+          if (typeof obj.entry === 'string') {
+            let text = obj.entry.replace(/{@\w+\s+([^|}\s]+)(?:\s[^|}]*)?(?:\|[^}]*)?}/g, '$1');
+            text = text.replace(/{@\w+([^|}\s]+)(?:\||})[^}]*}/g, '$1');
+            result.push(text);
+          }
+        }
+      }
+    }
+
+    return result.join(' ').replace(/\s+/g, ' ').trim();
+  }
+
+  private resolveFeatReferences(featRefs: string[], featsLookup: Map<string, FeatDetail>): FeatDetail[] {
+    return featRefs
+      .map(ref => {
+        const [name, source] = ref.split('|');
+        const key = `${name.toLowerCase()}|${(source || '').toLowerCase()}`;
+        return featsLookup.get(key);
+      })
+      .filter((f): f is FeatDetail => f !== undefined);
+  }
 
   async getClasses(): Promise<ClassInfo[]> {
     if (this.classesCache) {
@@ -298,6 +399,171 @@ class DataService {
       return [];
     }
   }
+
+  async getBackgroundDetail(backgroundName: string): Promise<BackgroundDetail | null> {
+    try {
+      // Read backgrounds.json for mechanical data
+      const bgFilePath = join(DATA_PATH, 'backgrounds.json');
+      const bgContent = await readFile(bgFilePath, 'utf-8');
+      const bgData = JSON.parse(bgContent);
+
+      // Read fluff-backgrounds.json for descriptions
+      const fluffFilePath = join(DATA_PATH, 'fluff-backgrounds.json');
+      const fluffContent = await readFile(fluffFilePath, 'utf-8');
+      const fluffData = JSON.parse(fluffContent);
+
+      // Get feats lookup for resolving feat references
+      const featsLookup = await this.getFeatsLookup();
+
+      // Get all 2024 edition backgrounds by name
+      const backgroundByName = new Map<string, Array<{ source: string; abilityBonuses?: Array<{ from: string[]; count: number; weights?: number[] }>; feats?: FeatDetail[]; skillProficiencies?: string[]; toolProficiencies?: string[]; languages?: string[]; equipment?: string[] }>>();
+
+      (bgData.background || []).forEach((bg: { name?: string; edition?: string; source?: string; _copy?: unknown; ability?: unknown[]; feats?: unknown[]; skillProficiencies?: unknown[]; toolProficiencies?: unknown[]; languageProficiencies?: unknown[]; entries?: unknown[] }) => {
+        if ((bg.edition === 'one' || (!bg.edition && !bg._copy)) && bg.name) {
+          if (!backgroundByName.has(bg.name)) {
+            backgroundByName.set(bg.name, []);
+          }
+          backgroundByName.get(bg.name)!.push(this.extractBackgroundMechanics(bg, featsLookup));
+        }
+      });
+
+      const matchingBackgrounds = backgroundByName.get(backgroundName);
+      if (!matchingBackgrounds || matchingBackgrounds.length === 0) return null;
+
+      // Find all matching fluffs by name
+      const matchingFluffs = (fluffData.backgroundFluff || []).filter(
+        (f: { name?: string }) => f.name?.toLowerCase() === backgroundName.toLowerCase()
+      );
+
+      // Combine mechanical data with descriptions for each source
+      const descriptions: BackgroundDescriptionSource[] = matchingFluffs.map((fluff: { source?: string; entries?: unknown[] }) => {
+        const matchingMechanics = matchingBackgrounds.find(b => b.source === fluff.source);
+        return {
+          source: fluff.source || 'Unknown',
+          description: fluff.entries ? this.extractFluffDescription(fluff.entries) : '',
+          abilityBonuses: matchingMechanics?.abilityBonuses,
+          feats: matchingMechanics?.feats,
+          skillProficiencies: matchingMechanics?.skillProficiencies,
+          toolProficiencies: matchingMechanics?.toolProficiencies,
+          languages: matchingMechanics?.languages,
+          equipment: matchingMechanics?.equipment,
+        };
+      }).filter((d: BackgroundDescriptionSource) => d.description.length > 0);
+
+      if (descriptions.length === 0) return null;
+
+      return {
+        name: backgroundName,
+        descriptions,
+      };
+    } catch (error) {
+      console.error(`Error loading background detail for ${backgroundName}:`, error);
+      return null;
+    }
+  }
+
+  private extractBackgroundMechanics(bg: { source?: string; ability?: unknown[]; feats?: unknown[]; skillProficiencies?: unknown[]; toolProficiencies?: unknown[]; languageProficiencies?: unknown[]; entries?: unknown[] }, featsLookup: Map<string, FeatDetail>) {
+    const mechanics: { source: string; abilityBonuses?: Array<{ from: string[]; count: number; weights?: number[] }>; feats?: FeatDetail[]; skillProficiencies?: string[]; toolProficiencies?: string[]; languages?: string[]; equipment?: string[] } = {
+      source: bg.source || 'Unknown',
+    };
+
+    // Extract ability bonuses
+    mechanics.abilityBonuses = bg.ability?.map((abil: unknown) => {
+      const abilObj = abil as { choose?: { weighted?: { from?: string[]; weights?: number[] } } };
+      const weighted = abilObj.choose?.weighted;
+      return {
+        from: weighted?.from || [],
+        count: weighted?.weights?.reduce((a: number, b: number) => Math.max(a, b), 0) || 1,
+        weights: weighted?.weights,
+      };
+    });
+
+    // Extract and resolve feats
+    const featRefs = bg.feats?.map((f: unknown) => {
+      const fObj = f as Record<string, unknown>;
+      return Object.keys(fObj)[0];
+    }).filter((f: string | undefined): f is string => f !== undefined) || [];
+    mechanics.feats = this.resolveFeatReferences(featRefs, featsLookup);
+
+    // Extract skill proficiencies
+    mechanics.skillProficiencies = bg.skillProficiencies
+      ?.flatMap((s: unknown) => {
+        const sObj = s as Record<string, unknown>;
+        return Object.keys(sObj).filter(k => k !== 'type' && typeof sObj[k] === 'boolean' && sObj[k] === true);
+      })
+      || [];
+
+    // Extract tool proficiencies
+    mechanics.toolProficiencies = bg.toolProficiencies
+      ?.flatMap((t: unknown) => {
+        const tObj = t as Record<string, unknown>;
+        return Object.keys(tObj).filter(k => k !== 'type' && typeof tObj[k] === 'boolean' && tObj[k] === true);
+      })
+      || [];
+
+    // Extract languages
+    const languages: string[] = [];
+    if (bg.languageProficiencies) {
+      for (const lang of bg.languageProficiencies as unknown[]) {
+        const langObj = lang as Record<string, unknown>;
+        if (langObj.anyStandard) languages.push(`${langObj.anyStandard} of your choice`);
+        else if (langObj.any) languages.push(`${langObj.any} of your choice`);
+        else {
+          Object.keys(langObj).filter(k => k !== 'type').forEach(k => languages.push(k));
+        }
+      }
+    }
+    mechanics.languages = languages.length > 0 ? languages : undefined;
+
+    // Extract equipment from entries
+    let equipmentEntry = '';
+    if (bg.entries && Array.isArray(bg.entries)) {
+      for (const entry of bg.entries) {
+        if (entry && typeof entry === 'object') {
+          const entryObj = entry as Record<string, unknown>;
+          if (entryObj.type === 'list' && Array.isArray(entryObj.items)) {
+            const equipmentItem = entryObj.items?.find(
+              (item: unknown) => {
+                const itemObj = item as Record<string, unknown>;
+                return itemObj.name === 'Equipment:';
+              }
+            );
+            if (equipmentItem && typeof (equipmentItem as Record<string, unknown>).entry === 'string') {
+              equipmentEntry = (equipmentItem as Record<string, unknown>).entry as string;
+              break;
+            }
+          }
+        }
+      }
+    }
+    mechanics.equipment = equipmentEntry ? [equipmentEntry] : undefined;
+
+    return mechanics;
+  }
+
+  private extractFluffDescription(entries: unknown[]): string {
+    const result: string[] = [];
+
+    for (const entry of entries) {
+      if (typeof entry === 'string') {
+        result.push(entry);
+      } else if (entry && typeof entry === 'object') {
+        const obj = entry as Record<string, unknown>;
+        if (obj.type === 'entries' && Array.isArray(obj.entries)) {
+          result.push(this.extractFluffDescription(obj.entries));
+        } else if (obj.entry) {
+          if (typeof obj.entry === 'string') {
+            result.push(obj.entry);
+          } else if (Array.isArray(obj.entry)) {
+            result.push(this.extractFluffDescription(obj.entry));
+          }
+        }
+      }
+    }
+
+    return result.join('\n\n');
+  }
+
 }
 
 export default new DataService();

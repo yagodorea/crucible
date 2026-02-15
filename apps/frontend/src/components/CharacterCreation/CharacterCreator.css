@@ -195,6 +195,7 @@
   transition: all 0.2s;
   padding: 0;
   line-height: 1;
+  margin-left: 0.5rem;
 }
 
 .info-btn:hover {
@@ -279,6 +280,13 @@
 .species-item h3 {
   margin: 0;
   color: #333;
+}
+
+.background-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
 }
 
 .source {
@@ -497,6 +505,39 @@
 /* Source Toggle */
 .source-toggle {
   margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.source-toggle span {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.source-button {
+  padding: 0.4rem 0.85rem;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid #ddd;
+  color: #666;
+  background: white;
+}
+
+.source-button:hover {
+  border-color: #8b0000;
+  color: #8b0000;
+}
+
+.source-button.active {
+  border-color: #8b0000;
+  background: #8b0000;
+  color: white;
 }
 
 .source-toggle-row {
@@ -817,6 +858,60 @@
 
 .feature-content p {
   margin: 0.25rem 0;
+  color: #555;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+/* Feat Items */
+.feat-item {
+  margin-bottom: 0.5rem;
+  background: #f9f9f9;
+  border-radius: 6px;
+}
+
+.feat-item:last-child {
+  margin-bottom: 0;
+}
+
+.feat-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.feat-toggle:hover {
+  background: #f0f0f0;
+}
+
+.feat-toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  font-size: 0.7rem;
+  color: #8b0000;
+}
+
+.feat-toggle-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.feat-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.feat-item p {
+  margin: 0;
+  padding: 0 0.75rem 0.5rem 1.75rem;
   color: #555;
   line-height: 1.5;
   font-size: 0.9rem;

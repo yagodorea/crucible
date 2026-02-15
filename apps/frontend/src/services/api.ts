@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Character, ClassInfo, ClassDetailInfo, SubclassDetailInfo, RaceInfo, BackgroundInfo } from '../types/character';
+import type { Character, ClassInfo, ClassDetailInfo, SubclassDetailInfo, RaceInfo, BackgroundInfo, BackgroundDetailInfo } from '../types/character';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 const STORAGE_KEY = 'dnd-api-key';
@@ -55,6 +55,11 @@ export const dataAPI = {
 
   getBackgrounds: async (): Promise<BackgroundInfo[]> => {
     const response = await api.get('/data/backgrounds');
+    return response.data;
+  },
+
+  getBackgroundDetail: async (backgroundName: string): Promise<BackgroundDetailInfo> => {
+    const response = await api.get(`/data/backgrounds/${encodeURIComponent(backgroundName)}`);
     return response.data;
   },
 

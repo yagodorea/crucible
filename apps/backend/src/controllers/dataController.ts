@@ -119,3 +119,22 @@ export const getBackgrounds = async (_req: Request, res: Response): Promise<void
     }
   }
 };
+
+export const getBackgroundDetail = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { backgroundName } = req.params;
+    const detail = await dataService.getBackgroundDetail(backgroundName);
+    if (!detail) {
+      res.status(404).json({ message: 'Background not found' });
+      return;
+    }
+
+    res.json(detail);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'Unknown error occurred' });
+    }
+  }
+};

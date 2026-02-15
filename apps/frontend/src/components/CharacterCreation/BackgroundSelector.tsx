@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { dataAPI } from '../../services/api';
 import type { BackgroundInfo } from '../../types/character';
+import BackgroundInfoModal from './BackgroundInfoModal';
 
 interface BackgroundSelectorProps {
   selectedBackground?: string;
@@ -12,6 +13,7 @@ const BackgroundSelector = ({ selectedBackground, onSelect, enabledSources }: Ba
   const [allBackgrounds, setAllBackgrounds] = useState<BackgroundInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [infoBackgroundName, setInfoBackgroundName] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBackgrounds = async () => {
@@ -63,11 +65,30 @@ const BackgroundSelector = ({ selectedBackground, onSelect, enabledSources }: Ba
             className={`background-item ${selectedBackground === background.name ? 'selected' : ''}`}
             onClick={() => onSelect(background.name)}
           >
-            <h3>{background.name}</h3>
+            <div className="background-item-header">
+              <h3>{background.name}</h3>
+              <button
+                className="info-btn"
+                title={`More info about ${background.name}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setInfoBackgroundName(background.name);
+                }}
+              >
+                i
+              </button>
+            </div>
             <span className="source">{background.source}</span>
           </div>
         ))}
       </div>
+
+      {infoBackgroundName && (
+        <BackgroundInfoModal
+          backgroundName={infoBackgroundName}
+          onClose={() => setInfoBackgroundName(null)}
+        />
+      )}
     </div>
   );
 };

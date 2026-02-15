@@ -93,3 +93,25 @@ export interface BackgroundInfo {
   name: string;
   source: string;
 }
+
+export interface FeatDetail {
+  name: string;
+  source: string;
+  description: string;
+}
+
+export interface BackgroundDescriptionSource {
+  source: string;
+  description: string;
+  abilityBonuses?: Array<{ from: string[]; count: number; weights?: number[] }>;
+  feats?: FeatDetail[];
+  skillProficiencies?: string[];
+  toolProficiencies?: string[];
+  languages?: string[];
+  equipment?: string[];
+}
+
+export interface BackgroundDetailInfo {
+  name: string;
+  descriptions: BackgroundDescriptionSource[];
+}
