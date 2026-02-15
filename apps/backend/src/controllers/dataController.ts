@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import dataService from '../services/dataService.js';
 
 const complexityMap: Record<string, {primaryAbility: string; complexity: string}> = {
+  'Artificer': { primaryAbility: 'Intelligence', complexity: 'High' },
   'Barbarian': { primaryAbility: 'Strength', complexity: 'Average' },
   'Bard': { primaryAbility: 'Charisma', complexity: 'High' },
   'Cleric': { primaryAbility: 'Wisdom', complexity: 'Average' },

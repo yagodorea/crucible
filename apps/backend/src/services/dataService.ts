@@ -79,7 +79,7 @@ class DataService {
     }
 
     const classFiles = [
-      'barbarian', 'bard', 'cleric', 'druid', 'fighter',
+      'artificer', 'barbarian', 'bard', 'cleric', 'druid', 'fighter',
       'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'
     ];
 
@@ -153,6 +153,8 @@ class DataService {
       const oneClass = classData.class?.find((c: { edition?: string }) => c.edition === 'one');
       if (!oneClass) return null;
 
+      const classSource = oneClass.source;
+
       // Read fluff file for description
       let description = '';
       try {
@@ -160,12 +162,12 @@ class DataService {
         const fluffContent = await readFile(fluffFilePath, 'utf-8');
         const fluffData = JSON.parse(fluffContent);
 
-        const xphbFluff = fluffData.classFluff?.find(
-          (f: { source?: string }) => f.source === 'XPHB'
+        const classFluff = fluffData.classFluff?.find(
+          (f: { source?: string }) => f.source === classSource
         );
-        if (xphbFluff?.entries) {
+        if (classFluff?.entries) {
           // Extract text entries from the first section
-          const section = xphbFluff.entries.find(
+          const section = classFluff.entries.find(
             (e: { type?: string }) => e.type === 'section'
           );
           if (section?.entries) {
@@ -178,19 +180,19 @@ class DataService {
         // Fluff file may not exist for all classes
       }
 
-      // Extract XPHB-native subclass names
+      // Extract subclass names matching the class source
       const subclasses = (classData.subclass || [])
         .filter(
           (sc: { source?: string; classSource?: string }) =>
-            sc.source === 'XPHB' && sc.classSource === 'XPHB'
+            sc.source === classSource && sc.classSource === classSource
         )
         .map((sc: { name: string }) => sc.name);
 
-      // Extract class features from XPHB source
+      // Extract class features from the class source
       const features: ClassFeatureInfo[] = (classData.classFeature || [])
         .filter(
           (f: { source?: string; classSource?: string }) =>
-            f.source === 'XPHB' && f.classSource === 'XPHB'
+            f.source === classSource && f.classSource === classSource
         )
         .map((f: { name: string; level: number; entries?: unknown[] }) => ({
           name: f.name,
@@ -221,10 +223,15 @@ class DataService {
       const classContent = await readFile(classFilePath, 'utf-8');
       const classData = JSON.parse(classContent);
 
-      // Find the XPHB subclass entry
+      // Get the class source from the "one" edition
+      const oneClass = classData.class?.find((c: { edition?: string }) => c.edition === 'one');
+      if (!oneClass) return null;
+      const classSource = oneClass.source;
+
+      // Find the subclass entry matching the class source
       const subclass = (classData.subclass || []).find(
         (sc: { name: string; source?: string; classSource?: string }) =>
-          sc.source === 'XPHB' && sc.classSource === 'XPHB' &&
+          sc.source === classSource && sc.classSource === classSource &&
           sc.name.toLowerCase() === subclassName.toLowerCase()
       );
       if (!subclass) return null;
@@ -234,7 +241,7 @@ class DataService {
       const allFeatures: SubclassFeatureInfo[] = (classData.subclassFeature || [])
         .filter(
           (f: { source?: string; subclassSource?: string; subclassShortName?: string }) =>
-            f.source === 'XPHB' && f.subclassSource === 'XPHB' &&
+            f.source === classSource && f.subclassSource === classSource &&
             f.subclassShortName === shortName
         )
         .map((f: { name: string; level: number; entries?: unknown[] }) => ({
