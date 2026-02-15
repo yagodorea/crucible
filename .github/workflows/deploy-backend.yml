@@ -48,6 +48,7 @@ jobs:
           gcloud compute ssh ${{ secrets.GCP_INSTANCE_NAME }} \
             --zone=${{ secrets.GCP_INSTANCE_ZONE }} \
             --command="
+              gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet && \
               docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} && \
               docker stop crucible-backend || true && \
               docker rm crucible-backend || true && \
