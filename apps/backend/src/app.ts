@@ -1,10 +1,15 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { testConnection } from './config/database.js';
 import userRoutes from './routes/userRoutes.js';
 import dataRoutes from './routes/dataRoutes.js';
 import characterRoutes from './routes/characterRoutes.js';
 import { validateApiKey, checkApiKey } from './middleware/apiKeyAuth.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -45,7 +50,8 @@ if (process.env.NODE_ENV !== 'test') {
     testConnection();
 }
 
-app.get('/', (_req: Request, res: Response) => {
+// API root info endpoint
+app.get('/api', (_req: Request, res: Response) => {
     res.json({ message: 'Welcome to Crucible D&D Character Creator API' });
 });
 
@@ -66,5 +72,16 @@ app.post('/api/auth/validate', async (req: Request, res: Response) => {
 app.use('/api/users', validateApiKey, userRoutes);
 app.use('/api/data', validateApiKey, dataRoutes);
 app.use('/api/characters', validateApiKey, characterRoutes);
+
+// Serve frontend static files in production
+if (process.env.NODE_ENV === 'production') {
+    const publicPath = path.join(__dirname, '..', 'public');
+    app.use(express.static(publicPath));
+
+    // SPA fallback - serve index.html for all non-API routes
+    app.get('*', (_req: Request, res: Response) => {
+        res.sendFile(path.join(publicPath, 'index.html'));
+    });
+}
 
 export default app;

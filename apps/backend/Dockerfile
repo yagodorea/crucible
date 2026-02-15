@@ -1,4 +1,4 @@
-# Build stage
+# Build backend
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -21,6 +21,9 @@ RUN npm install --omit=dev
 
 COPY --from=builder /app/dist ./dist
 COPY data/ ./data/
+
+# Copy pre-built frontend (built by CI workflow)
+COPY public/ ./dist/public/
 
 EXPOSE 5001
 

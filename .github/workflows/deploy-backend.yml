@@ -1,4 +1,4 @@
-name: Deploy Backend to GCP Compute Engine
+name: Deploy to GCP Compute Engine
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'apps/backend/**'
+      - 'apps/frontend/**'
       - '.github/workflows/deploy-backend.yml'
   workflow_dispatch:
 
@@ -19,6 +20,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build frontend
+        working-directory: apps/frontend
+        run: |
+          npm install
+          npm run build
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+
+      - name: Copy frontend to backend
+        run: cp -r apps/frontend/dist apps/backend/public
 
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
