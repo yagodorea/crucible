@@ -917,3 +917,36 @@
   line-height: 1.5;
   font-size: 0.9rem;
 }
+
+/* Point Buy System */
+.point-buy-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.points-display {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.points-remaining {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.points-perfect {
+  color: #8b0000;
+  font-weight: 600;
+}
+
+.points-over {
+  color: #dc3545;
+  font-weight: 600;
+}
