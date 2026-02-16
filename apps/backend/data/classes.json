@@ -1,0 +1,184 @@
+[
+  {
+    "name": "Artificer",
+    "source": "EFA",
+    "primaryAbility": "Intelligence",
+    "complexity": "High",
+    "hd": {
+      "number": 1,
+      "faces": 8
+    },
+    "proficiency": [
+      "con",
+      "int"
+    ]
+  },
+  {
+    "name": "Barbarian",
+    "source": "XPHB",
+    "primaryAbility": "Strength",
+    "complexity": "Average",
+    "hd": {
+      "number": 1,
+      "faces": 12
+    },
+    "proficiency": [
+      "str",
+      "con"
+    ]
+  },
+  {
+    "name": "Bard",
+    "source": "XPHB",
+    "primaryAbility": "Charisma",
+    "complexity": "High",
+    "hd": {
+      "number": 1,
+      "faces": 8
+    },
+    "proficiency": [
+      "dex",
+      "cha"
+    ]
+  },
+  {
+    "name": "Cleric",
+    "source": "XPHB",
+    "primaryAbility": "Wisdom",
+    "complexity": "Average",
+    "hd": {
+      "number": 1,
+      "faces": 8
+    },
+    "proficiency": [
+      "wis",
+      "cha"
+    ]
+  },
+  {
+    "name": "Druid",
+    "source": "XPHB",
+    "primaryAbility": "Wisdom",
+    "complexity": "High",
+    "hd": {
+      "number": 1,
+      "faces": 8
+    },
+    "proficiency": [
+      "int",
+      "wis"
+    ]
+  },
+  {
+    "name": "Fighter",
+    "source": "XPHB",
+    "primaryAbility": "Strength or Dexterity",
+    "complexity": "Low",
+    "hd": {
+      "number": 1,
+      "faces": 10
+    },
+    "proficiency": [
+      "str",
+      "con"
+    ]
+  },
+  {
+    "name": "Monk",
+    "source": "XPHB",
+    "primaryAbility": "Dexterity and Wisdom",
+    "complexity": "High",
+    "hd": {
+      "number": 1,
+      "faces": 8
+    },
+    "proficiency": [
+      "str",
+      "dex"
+    ]
+  },
+  {
+    "name": "Paladin",
+    "source": "XPHB",
+    "primaryAbility": "Strength and Charisma",
+    "complexity": "Average",
+    "hd": {
+      "number": 1,
+      "faces": 10
+    },
+    "proficiency": [
+      "wis",
+      "cha"
+    ]
+  },
+  {
+    "name": "Ranger",
+    "source": "XPHB",
+    "primaryAbility": "Dexterity and Wisdom",
+    "complexity": "Average",
+    "hd": {
+      "number": 1,
+      "faces": 10
+    },
+    "proficiency": [
+      "str",
+      "dex"
+    ]
+  },
+  {
+    "name": "Rogue",
+    "source": "XPHB",
+    "primaryAbility": "Dexterity",
+    "complexity": "Low",
+    "hd": {
+      "number": 1,
+      "faces": 8
+    },
+    "proficiency": [
+      "dex",
+      "int"
+    ]
+  },
+  {
+    "name": "Sorcerer",
+    "source": "XPHB",
+    "primaryAbility": "Charisma",
+    "complexity": "High",
+    "hd": {
+      "number": 1,
+      "faces": 6
+    },
+    "proficiency": [
+      "con",
+      "cha"
+    ]
+  },
+  {
+    "name": "Warlock",
+    "source": "XPHB",
+    "primaryAbility": "Charisma",
+    "complexity": "High",
+    "hd": {
+      "number": 1,
+      "faces": 8
+    },
+    "proficiency": [
+      "wis",
+      "cha"
+    ]
+  },
+  {
+    "name": "Wizard",
+    "source": "XPHB",
+    "primaryAbility": "Intelligence",
+    "complexity": "Average",
+    "hd": {
+      "number": 1,
+      "faces": 6
+    },
+    "proficiency": [
+      "int",
+      "wis"
+    ]
+  }
+]

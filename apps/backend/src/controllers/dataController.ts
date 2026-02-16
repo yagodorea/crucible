@@ -1,33 +1,10 @@
 import { Request, Response } from 'express';
 import dataService from '../services/dataService.js';
 
-const complexityMap: Record<string, {primaryAbility: string; complexity: string}> = {
-  'Artificer': { primaryAbility: 'Intelligence', complexity: 'High' },
-  'Barbarian': { primaryAbility: 'Strength', complexity: 'Average' },
-  'Bard': { primaryAbility: 'Charisma', complexity: 'High' },
-  'Cleric': { primaryAbility: 'Wisdom', complexity: 'Average' },
-  'Druid': { primaryAbility: 'Wisdom', complexity: 'High' },
-  'Fighter': { primaryAbility: 'Strength or Dexterity', complexity: 'Low' },
-  'Monk': { primaryAbility: 'Dexterity and Wisdom', complexity: 'High' },
-  'Paladin': { primaryAbility: 'Strength and Charisma', complexity: 'Average' },
-  'Ranger': { primaryAbility: 'Dexterity and Wisdom', complexity: 'Average' },
-  'Rogue': { primaryAbility: 'Dexterity', complexity: 'Low' },
-  'Sorcerer': { primaryAbility: 'Charisma', complexity: 'High' },
-  'Warlock': { primaryAbility: 'Charisma', complexity: 'High' },
-  'Wizard': { primaryAbility: 'Intelligence', complexity: 'Average' }
-};
-
 export const getClasses = async (_req: Request, res: Response): Promise<void> => {
   try {
     const classes = await dataService.getClasses();
-
-    const enrichedClasses = classes.map(c => ({
-      ...c,
-      primaryAbility: complexityMap[c.name]?.primaryAbility || '',
-      complexity: complexityMap[c.name]?.complexity || 'Average'
-    }));
-
-    res.json(enrichedClasses);
+    res.json(classes);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ message: error.message });
@@ -46,13 +23,7 @@ export const getClassDetail = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const enriched = {
-      ...detail,
-      primaryAbility: complexityMap[detail.name]?.primaryAbility || '',
-      complexity: complexityMap[detail.name]?.complexity || 'Average',
-    };
-
-    res.json(enriched);
+    res.json(detail);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ message: error.message });

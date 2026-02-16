@@ -1,0 +1,506 @@
+{
+  "detail": {
+    "name": "Artificer",
+    "source": "EFA",
+    "description": "Masters of invention, Artificers use ingenuity and magic to unlock extraordinary capabilities in objects. They see magic as a complex system waiting to be decoded and then harnessed in their spells and inventions. You can find everything you need to play one of these inventors in this chapter.",
+    "primaryAbility": "Intelligence",
+    "complexity": "High",
+    "hd": {
+      "number": 1,
+      "faces": 8
+    },
+    "proficiency": [
+      "con",
+      "int"
+    ],
+    "startingProficiencies": {
+      "armor": [
+        "light",
+        "medium",
+        "shield"
+      ],
+      "weapons": [
+        "simple"
+      ],
+      "tools": [
+        "Thieves' Tools",
+        "Tinker's Tools",
+        "one type of Artisan's Tools of your choice"
+      ],
+      "toolProficiencies": [
+        {
+          "thieves' tools": true,
+          "tinker's tools": true,
+          "anyArtisansTool": 1
+        }
+      ],
+      "skills": [
+        {
+          "choose": {
+            "from": [
+              "arcana",
+              "history",
+              "investigation",
+              "medicine",
+              "nature",
+              "perception",
+              "sleight of hand"
+            ],
+            "count": 2
+          }
+        }
+      ]
+    },
+    "subclasses": [
+      "Alchemist",
+      "Armorer",
+      "Artillerist",
+      "Battle Smith",
+      "Cartographer"
+    ],
+    "features": [
+      {
+        "name": "Spellcasting",
+        "level": 1,
+        "entries": [
+          "You have learned how to channel magical energy through objects. See the Player's Handbook for the rules on spellcasting. The information below details how you use those rules with Artificer spells, which appear in the Artificer spell list later in the class's description."
+        ]
+      },
+      {
+        "name": "Tinker's Magic",
+        "level": 1,
+        "entries": [
+          "You know the Mending cantrip.",
+          "As a Magic action while holding Tinker's Tools, you can create one item in an unoccupied space within 5 feet of yourself, choosing the item from the following list:",
+          "See the rules for the item in the Player's Handbook. The item lasts until you finish a Long Rest, at which point it vanishes.",
+          "You can use this feature a number of times equal to your Intelligence modifier (minimum of once), and you regain all expended uses when you finish a Long Rest."
+        ]
+      },
+      {
+        "name": "Replicate Magic Item",
+        "level": 2,
+        "entries": [
+          "You have learned arcane plans that you use to make magic items."
+        ]
+      },
+      {
+        "name": "Artificer Subclass",
+        "level": 3,
+        "entries": [
+          "You gain an Artificer subclass of your choice. The Alchemist, Armorer, Artillerist, and Battle Smith, and Cartographer subclasses are detailed after this class's description. A subclass is a specialization that grants you features at certain Artificer levels. For the rest of your career, you gain each of your subclass's features that are of your Artificer level or lower."
+        ]
+      },
+      {
+        "name": "Ability Score Improvement",
+        "level": 4,
+        "entries": [
+          "You gain the Ability Score Improvement feat or another feat of your choice for which you qualify. You gain this feature again at Artificer levels 8, 12, and 16."
+        ]
+      },
+      {
+        "name": "Subclass feature",
+        "level": 5,
+        "entries": [
+          "You gain a feature from your Artificer Subclass."
+        ]
+      },
+      {
+        "name": "Magic Item Tinker",
+        "level": 6,
+        "entries": [
+          "Your Replicate Magic Item feature gains the following options."
+        ]
+      },
+      {
+        "name": "Flash of Genius",
+        "level": 7,
+        "entries": [
+          "When you or a creature you can see within 30 feet of you fails an ability check or a saving throw, you can take a Reaction to add a bonus to the roll, potentially causing it to succeed. The bonus equals your Intelligence modifier (minimum of +1).",
+          "You can take this Reaction a number of times equal to your Intelligence modifier (minimum of once). You regain all expended uses when you finish a Long Rest."
+        ]
+      },
+      {
+        "name": "Ability Score Improvement",
+        "level": 8,
+        "entries": [
+          "You gain the Ability Score Improvement feat or another feat of your choice for which you qualify."
+        ]
+      },
+      {
+        "name": "Subclass feature",
+        "level": 9,
+        "entries": [
+          "You gain a feature from your Artificer Subclass."
+        ]
+      },
+      {
+        "name": "Magic Item Adept",
+        "level": 10,
+        "entries": [
+          "You can now attune to up to four magic items at once."
+        ]
+      },
+      {
+        "name": "Spell-Storing Item",
+        "level": 11,
+        "entries": [
+          "Whenever you finish a Long Rest, you can touch one Simple or Martial weapon or one item that you can use as a Spellcasting Focus, and you store a spell in it, choosing a level 1, 2, or 3 Artificer spell that has a casting time of an action and doesn't require a Material component that is consumed by the spell (you needn't have the spell prepared).",
+          "While holding the object, a creature can take a Magic action to produce the spell's effect from it, using your spellcasting ability modifier. If the spell requires Concentration, the creature must concentrate. Once a creature has used the object to produce the spell's effect, the object can't be used this way again until the start of the creature's next turn.",
+          "The spell stays in the object until it's been used a number of times equal to twice your Intelligence modifier (minimum of twice) or until you use this feature again to store a spell in an object."
+        ]
+      },
+      {
+        "name": "Ability Score Improvement",
+        "level": 12,
+        "entries": [
+          "You gain the Ability Score Improvement feat or another feat of your choice for which you qualify."
+        ]
+      },
+      {
+        "name": "Advanced Artifice",
+        "level": 14,
+        "entries": [
+          "You gain the following benefits."
+        ]
+      },
+      {
+        "name": "Subclass feature",
+        "level": 15,
+        "entries": [
+          "You gain a feature from your Artificer Subclass."
+        ]
+      },
+      {
+        "name": "Ability Score Improvement",
+        "level": 16,
+        "entries": [
+          "You gain the Ability Score Improvement feat or another feat of your choice for which you qualify."
+        ]
+      },
+      {
+        "name": "Magic Item Master",
+        "level": 18,
+        "entries": [
+          "You can now attune to up to six magic items at once."
+        ]
+      },
+      {
+        "name": "Epic Boon",
+        "level": 19,
+        "entries": [
+          "You gain an Epic Boon feat or another feat of your choice for which you qualify. Boon of Energy Resistance is recommended."
+        ]
+      },
+      {
+        "name": "Soul of Artifice",
+        "level": 20,
+        "entries": [
+          "You have developed a mystical connection to your magic items, which you can draw on for aid. You gain the following benefits."
+        ]
+      }
+    ]
+  },
+  "subclasses": {
+    "alchemist": {
+      "name": "Alchemist",
+      "source": "EFA",
+      "className": "Artificer",
+      "description": "Craft Magic Elixirs and Potions\n\nAn Alchemist is an expert at combining reagents to produce magical effects. Alchemists use their creations to give life and to leech it away.",
+      "features": [
+        {
+          "name": "Alchemist Spells",
+          "level": 3,
+          "entries": [
+            "When you reach an Artificer level specified in the Alchemist Spells table, you thereafter always have the listed spells prepared."
+          ]
+        },
+        {
+          "name": "Experimental Elixir",
+          "level": 3,
+          "entries": [
+            "Whenever you finish a Long Rest while holding Alchemist's Supplies, you can use that tool to magically produce two elixirs. For each elixir, roll on the Experimental Elixir table for the elixir's effect, which is triggered when someone drinks the elixir. The elixir appears in a vial, and the vial vanishes when the elixir is drunk or poured out. If any elixir remains when you finish a Long Rest, the elixir and its vial vanish."
+          ]
+        },
+        {
+          "name": "Tools of the Trade",
+          "level": 3,
+          "entries": [
+            "You gain the following benefits."
+          ]
+        },
+        {
+          "name": "Alchemical Savant",
+          "level": 5,
+          "entries": [
+            "Whenever you cast a spell using your Alchemist's Supplies as the Spellcasting Focus, you gain a bonus to one roll of the spell. That roll must restore Hit Points or be a damage roll that deals Acid, Fire, or Poison damage. The bonus equals your Intelligence modifier (minimum bonus of +1)."
+          ]
+        },
+        {
+          "name": "Restorative Reagents",
+          "level": 9,
+          "entries": [
+            "You can cast Lesser Restoration without expending a spell slot and without preparing the spell, provided you use Alchemist's Supplies as the Spellcasting Focus. You can do so a number of times equal to your Intelligence modifier (minimum of once), and you regain all expended uses when you finish a Long Rest."
+          ]
+        },
+        {
+          "name": "Chemical Mastery",
+          "level": 15,
+          "entries": [
+            "You gain the following benefits."
+          ]
+        }
+      ]
+    },
+    "armorer": {
+      "name": "Armorer",
+      "source": "EFA",
+      "className": "Artificer",
+      "description": "Craft Magic Armor to Enhance Your Abilities\n\nAn Armorer modifies armor to function almost like a second skin. The armor is enhanced to hone the Armorer's magic, unleash potent attacks, and generate a formidable defense.",
+      "features": [
+        {
+          "name": "Arcane Armor",
+          "level": 3,
+          "entries": [
+            "As a Magic action while you have Smith's Tools in hand, you can turn a suit of armor you are wearing into Arcane Armor. The armor continues to be Arcane Armor until you don another suit of armor or you die.",
+            "You gain the following benefits while wearing your Arcane Armor."
+          ]
+        },
+        {
+          "name": "Armor Model",
+          "level": 3,
+          "entries": [
+            "You can customize your Arcane Armor. When you do so, choose one of the following armor models: Dreadnaught, Guardian, or Infiltrator. The model you choose gives you special benefits while you wear it.",
+            "Each model includes a special weapon. When you attack with that weapon, you can add your Intelligence modifier, instead of your Strength or Dexterity modifier, to the attack and damage rolls.",
+            "You can change the armor's model whenever you finish a Short Rest or Long Rest if you have Smith's Tools in hand."
+          ]
+        },
+        {
+          "name": "Armorer Spells",
+          "level": 3,
+          "entries": [
+            "When you reach an Artificer level specified in the Armorer Spells table, you thereafter always have the listed spells prepared."
+          ]
+        },
+        {
+          "name": "Dreadnaught",
+          "level": 3,
+          "entries": [
+            "You design your armor to become a towering juggernaut in battle. It has the following features:"
+          ]
+        },
+        {
+          "name": "Guardian",
+          "level": 3,
+          "entries": [
+            "You design your armor to be in the front line of conflict. It has the following features:"
+          ]
+        },
+        {
+          "name": "Infiltrator",
+          "level": 3,
+          "entries": [
+            "You customize your armor for subtler undertakings. It has the following features:"
+          ]
+        },
+        {
+          "name": "Tools of the Trade",
+          "level": 3,
+          "entries": [
+            "You gain the following benefits."
+          ]
+        },
+        {
+          "name": "Extra Attack",
+          "level": 5,
+          "entries": [
+            "You can attack twice instead of once whenever you take the Attack action on your turn."
+          ]
+        },
+        {
+          "name": "Improved Armorer",
+          "level": 9,
+          "entries": [
+            "You gain the following benefits."
+          ]
+        },
+        {
+          "name": "Perfected Armor",
+          "level": 15,
+          "entries": [
+            "Your Arcane Armor gains additional benefits based on its model, as detailed below."
+          ]
+        }
+      ]
+    },
+    "artillerist": {
+      "name": "Artillerist",
+      "source": "EFA",
+      "className": "Artificer",
+      "description": "Wield Destructive Power from Afar\n\nAn Artillerist specializes in using magic to hurl energy, projectiles, and explosions on a battlefield.",
+      "features": [
+        {
+          "name": "Artillerist Spells",
+          "level": 3,
+          "entries": [
+            "When you reach an Artificer level specified in the Artillerist Spells table, you thereafter always have the listed spells prepared."
+          ]
+        },
+        {
+          "name": "Eldritch Cannon",
+          "level": 3,
+          "entries": [
+            "Using Smith's Tools or Woodcarver's Tools, you can take a Magic action to create a Small or Tiny Eldritch Cannon in an unoccupied space on a horizontal surface within 5 feet of yourself. You determine its appearance, including whether you carry it or not (and your choice of legs or wheels, for the latter). It disappears if it is reduced to 0 Hit Points or after 1 hour. You can dismiss it early as a Magic action.",
+            "Once you create a cannon, you can't do so again until you finish a Long Rest or expend a spell slot to create one. You can have only one cannon at a time and can't create one while you already have one."
+          ]
+        },
+        {
+          "name": "Tools of the Trade",
+          "level": 3,
+          "entries": [
+            "You gain the following benefits."
+          ]
+        },
+        {
+          "name": "Arcane Firearm",
+          "level": 5,
+          "entries": [
+            "When you finish a Long Rest, you can use Woodcarver's Tools to carve special sigils into a Rod, Staff, Wand, or Martial Ranged weapon and thereby turn it into your Arcane Firearm. The sigils disappear from the object if you later carve them on a different item. The sigils otherwise last indefinitely.",
+            "You can use your Arcane Firearm as a Spellcasting Focus for your Artificer spells. When you cast an Artificer spell through the firearm, roll 1d8, and you gain a bonus to one of the spell's damage rolls equal to the number rolled."
+          ]
+        },
+        {
+          "name": "Explosive Cannon",
+          "level": 9,
+          "entries": [
+            "Every Eldritch Cannon you create is now more destructive. You gain the following benefits."
+          ]
+        },
+        {
+          "name": "Fortified Position",
+          "level": 15,
+          "entries": [
+            "You're a master at forming well-defended emplacements using your Eldritch Cannon. You gain the following benefits."
+          ]
+        }
+      ]
+    },
+    "battle smith": {
+      "name": "Battle Smith",
+      "source": "EFA",
+      "className": "Artificer",
+      "description": "Command a Construct Guardian\n\nA Battle Smith is a combination of protector and medic, an expert at defending others and repairing both materiel and personnel. To aid in their work, Battle Smiths are accompanied by a Steel Defender, a protective companion of their own creation.",
+      "features": [
+        {
+          "name": "Battle Ready",
+          "level": 3,
+          "entries": [
+            "Your combat training and your experiments with magic have paid off in two ways."
+          ]
+        },
+        {
+          "name": "Battle Smith Spells",
+          "level": 3,
+          "entries": [
+            "When you reach an Artificer level specified in the Battle Smith Spells table, you thereafter always have the listed spells prepared."
+          ]
+        },
+        {
+          "name": "Steel Defender",
+          "level": 3,
+          "entries": [
+            "Your tinkering has borne you a companion, a Steel Defender. You determine the defender's appearance and whether it has two legs or four; your choices don't affect the defender's game statistics.",
+            "The Steel Defender is Friendly [Attitude] to you and your allies and obeys you. It vanishes if you die."
+          ]
+        },
+        {
+          "name": "Tools of the Trade",
+          "level": 3,
+          "entries": [
+            "You gain the following benefits."
+          ]
+        },
+        {
+          "name": "Extra Attack",
+          "level": 5,
+          "entries": [
+            "You can attack twice instead of once whenever you take the Attack action on your turn. You can forgo one of your attacks when you take the Attack action to command your Steel Defender to take the Force-Empowered Rend action."
+          ]
+        },
+        {
+          "name": "Arcane Jolt",
+          "level": 9,
+          "entries": [
+            "When either you hit a target with an attack roll using a magic weapon or your Steel Defender hits a target, you can channel magical energy through the strike to create one of the following effects:",
+            "You can use this energy a number of times equal to your Intelligence modifier (minimum of once), but you can do so no more than once per turn. You regain all expended uses when you finish a Long Rest."
+          ]
+        },
+        {
+          "name": "Improved Defender",
+          "level": 15,
+          "entries": [
+            "Your Arcane Jolt and Steel Defender have become more powerful, granting these benefits."
+          ]
+        }
+      ]
+    },
+    "cartographer": {
+      "name": "Cartographer",
+      "source": "EFA",
+      "className": "Artificer",
+      "description": "Chart Advantageous Courses through Turmoil\n\nCartographers are the premier navigators and reconnaissance agents. Using their creations, Cartographers can highlight threats, safeguard allies, and carve portals to distant locations.",
+      "features": [
+        {
+          "name": "Adventurer's Atlas",
+          "level": 3,
+          "entries": [
+            "Whenever you finish a Long Rest while holding Cartographer's Tools, you can use that tool to create a set of magical maps by touching at least two creatures (one of whom can be yourself), up to a maximum number of creatures equal to 1 plus your Intelligence modifier (minimum of two creatures). Each target receives a magical map, which constantly updates to show the relative position of all the map holders but is illegible to all others. The maps last until you die or until you use this feature again, at which point any existing maps created by this feature immediately vanish.",
+            "While carrying the map, a target gains the following benefits."
+          ]
+        },
+        {
+          "name": "Cartographer Spells",
+          "level": 3,
+          "entries": [
+            "When you reach an Artificer level specified in the Cartographer Spells table, you thereafter always have the listed spells prepared."
+          ]
+        },
+        {
+          "name": "Mapping Magic",
+          "level": 3,
+          "entries": [
+            "You gain the following benefits."
+          ]
+        },
+        {
+          "name": "Tools of the Trade",
+          "level": 3,
+          "entries": [
+            "You gain the following benefits."
+          ]
+        },
+        {
+          "name": "Guided Precision",
+          "level": 5,
+          "entries": [
+            "Once per turn, whenever you cast a spell from your Cartographer Spells list or hit a creature affected by your Faerie Fire with an attack roll, you can add your Intelligence modifier to one damage roll of the spell or attack.",
+            "In addition, taking damage can't cause you to lose Concentration on Faerie Fire."
+          ]
+        },
+        {
+          "name": "Ingenious Movement",
+          "level": 9,
+          "entries": [
+            "When you use your Flash of Genius, you or a willing creature of your choice that you can see within 30 feet of yourself can teleport up to 30 feet to an unoccupied space you can see as part of that same Reaction."
+          ]
+        },
+        {
+          "name": "Superior Atlas",
+          "level": 15,
+          "entries": [
+            "Your Adventurer's Atlas improves, gaining the following benefits."
+          ]
+        }
+      ]
+    }
+  }
+}

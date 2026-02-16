@@ -95,8 +95,19 @@ const CharacterCreator = () => {
     setEnabledSources(availableSources);
   };
 
+  const isStepComplete = (step: Step): boolean => {
+    switch (step) {
+      case 1: return !!character.class;
+      case 2: return !!character.background;
+      case 3: return !!character.species;
+      case 4: return !!character.abilityScores;
+      case 5: return !!(character.name && character.alignment);
+      default: return false;
+    }
+  };
+
   const nextStep = () => {
-    if (currentStep < 5) {
+    if (currentStep < 5 && isStepComplete(currentStep)) {
       setCurrentStep((currentStep + 1) as Step);
     }
   };
@@ -166,6 +177,7 @@ const CharacterCreator = () => {
       {currentStep < 5 ? (
         <button
           onClick={nextStep}
+          disabled={!isStepComplete(currentStep)}
           className="btn btn-primary"
         >
           Next
