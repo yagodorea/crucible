@@ -38,6 +38,7 @@ export interface Character {
   languages: string[];
   appearance?: string;
   lore?: string;
+  createdBy?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { nanoid } from 'nanoid';
 import { supabase } from '../config/database.js';
 import {
-  DbCharacter,
+  DbCharacterWithCreator,
   CharacterInput,
   toCharacterResponse,
   toDbInsert,
@@ -13,11 +13,11 @@ export const getAllCharacters = async (_req: Request, res: Response): Promise<vo
   try {
     const { data, error } = await supabase
       .from('characters')
-      .select('*');
+      .select('*, users(name)');
 
     if (error) throw error;
 
-    const characters = (data as DbCharacter[]).map(toCharacterResponse);
+    const characters = (data as DbCharacterWithCreator[]).map(toCharacterResponse);
     res.json(characters);
   } catch (error) {
     if (error instanceof Error) {
@@ -32,7 +32,7 @@ export const getCharacterById = async (req: Request, res: Response): Promise<voi
   try {
     const { data, error } = await supabase
       .from('characters')
-      .select('*')
+      .select('*, users(name)')
       .eq('character_id', req.params.id)
       .single();
 
@@ -44,7 +44,7 @@ export const getCharacterById = async (req: Request, res: Response): Promise<voi
       throw error;
     }
 
-    res.json(toCharacterResponse(data as DbCharacter));
+    res.json(toCharacterResponse(data as DbCharacterWithCreator));
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ message: error.message });
@@ -58,17 +58,18 @@ export const createCharacter = async (req: Request, res: Response): Promise<void
   try {
     const characterId = nanoid(8);
     const input: CharacterInput = req.body;
-    const dbData = toDbInsert(input, characterId);
+    const userId = req.user?.id;
+    const dbData = toDbInsert(input, characterId, userId);
 
     const { data, error } = await supabase
       .from('characters')
       .insert(dbData)
-      .select()
+      .select('*, users(name)')
       .single();
 
     if (error) throw error;
 
-    res.status(201).json(toCharacterResponse(data as DbCharacter));
+    res.status(201).json(toCharacterResponse(data as DbCharacterWithCreator));
   } catch (error) {
     if (error instanceof Error) {
       res.status(400).json({ message: error.message });
@@ -86,7 +87,7 @@ export const updateCharacter = async (req: Request, res: Response): Promise<void
       .from('characters')
       .update(updateData)
       .eq('character_id', req.params.id)
-      .select()
+      .select('*, users(name)')
       .single();
 
     if (error) {
@@ -97,7 +98,7 @@ export const updateCharacter = async (req: Request, res: Response): Promise<void
       throw error;
     }
 
-    res.json(toCharacterResponse(data as DbCharacter));
+    res.json(toCharacterResponse(data as DbCharacterWithCreator));
   } catch (error) {
     if (error instanceof Error) {
       res.status(400).json({ message: error.message });

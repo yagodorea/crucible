@@ -173,6 +173,9 @@ const CharacterDetailsPage = () => {
 
           {(character.createdAt || character.updatedAt) && (
             <section className="timestamps">
+              {character.createdBy && (
+                <span>Created by: {character.createdBy}</span>
+              )}
               {character.createdAt && (
                 <span>Created: {new Date(character.createdAt).toLocaleDateString()}</span>
               )}

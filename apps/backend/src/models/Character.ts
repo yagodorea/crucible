@@ -29,6 +29,7 @@ export interface DbCharacter {
   languages: string[];
   appearance: string | null;
   lore: string | null;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -56,6 +57,7 @@ export interface CharacterResponse {
   languages: string[];
   appearance?: string;
   lore?: string;
+  createdBy?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -74,8 +76,13 @@ export interface CharacterInput {
   lore?: string;
 }
 
+// DB row with joined user name
+export interface DbCharacterWithCreator extends DbCharacter {
+  users?: { name: string } | null;
+}
+
 // Transform DB row to API response format
-export function toCharacterResponse(row: DbCharacter): CharacterResponse {
+export function toCharacterResponse(row: DbCharacterWithCreator): CharacterResponse {
   return {
     id: row.id,
     characterId: row.character_id,
@@ -96,13 +103,14 @@ export function toCharacterResponse(row: DbCharacter): CharacterResponse {
     languages: row.languages || [],
     appearance: row.appearance || undefined,
     lore: row.lore || undefined,
+    createdBy: row.users?.name || undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
 }
 
 // Transform API input to DB format for insert
-export function toDbInsert(input: CharacterInput, characterId: string): Omit<DbCharacter, 'id' | 'created_at' | 'updated_at'> {
+export function toDbInsert(input: CharacterInput, characterId: string, userId?: string): Omit<DbCharacter, 'id' | 'created_at' | 'updated_at'> {
   return {
     character_id: characterId,
     name: input.name,
@@ -119,7 +127,8 @@ export function toDbInsert(input: CharacterInput, characterId: string): Omit<DbC
     alignment: input.alignment,
     languages: input.languages || [],
     appearance: input.appearance || null,
-    lore: input.lore || null
+    lore: input.lore || null,
+    created_by: userId || null
   };
 }
 

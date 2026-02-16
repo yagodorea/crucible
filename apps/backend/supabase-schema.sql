@@ -74,6 +74,9 @@ CREATE TABLE characters (
   appearance TEXT,
   lore TEXT,
 
+  -- Creator
+  created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+
   -- Timestamps
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
