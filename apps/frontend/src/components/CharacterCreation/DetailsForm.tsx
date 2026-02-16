@@ -27,6 +27,7 @@ const DetailsForm = ({ character, onUpdate }: DetailsFormProps) => {
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>(character.languages || ['Common']);
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [languageSearch, setLanguageSearch] = useState('');
 
   useEffect(() => {
     const fetchLanguages = async () => {
@@ -100,7 +101,12 @@ const DetailsForm = ({ character, onUpdate }: DetailsFormProps) => {
         <div
           id="languages"
           className="form-input multiselect-display"
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          onClick={() => {
+            setIsDropdownOpen(!isDropdownOpen);
+            if (!isDropdownOpen) {
+              setLanguageSearch('');
+            }
+          }}
           style={{
             minHeight: '42px',
             padding: '8px 12px',
@@ -150,49 +156,81 @@ const DetailsForm = ({ character, onUpdate }: DetailsFormProps) => {
               left: 0,
               right: 0,
               maxHeight: '250px',
-              overflowY: 'auto',
               background: 'white',
               border: '1px solid #ccc',
               borderRadius: '4px',
               marginTop: '4px',
               boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-              zIndex: 1000
+              zIndex: 1000,
+              display: 'flex',
+              flexDirection: 'column'
             }}
-            onMouseLeave={() => setIsDropdownOpen(false)}
+            onMouseLeave={() => {
+              setIsDropdownOpen(false);
+              setLanguageSearch('');
+            }}
           >
-            {availableLanguages.map(lang => (
-              <div
-                key={lang}
-                className="multiselect-option"
-                onClick={() => toggleLanguage(lang)}
+            <div style={{ padding: '8px', borderBottom: '1px solid #e5e7eb' }}>
+              <input
+                type="text"
+                value={languageSearch}
+                onChange={(e) => setLanguageSearch(e.target.value)}
+                placeholder="Search languages..."
+                onClick={(e) => e.stopPropagation()}
                 style={{
-                  padding: '10px 12px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: selectedLanguages.includes(lang) ? '#f0f4ff' : 'white'
+                  width: '100%',
+                  padding: '6px 10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                  outline: 'none'
                 }}
-                onMouseEnter={(e) => {
-                  if (!selectedLanguages.includes(lang)) {
-                    e.currentTarget.style.background = '#f8f9fa';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!selectedLanguages.includes(lang)) {
-                    e.currentTarget.style.background = 'white';
-                  }
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedLanguages.includes(lang)}
-                  onChange={() => {}}
-                  style={{ pointerEvents: 'none' }}
-                />
-                <span>{lang}</span>
-              </div>
-            ))}
+                onFocus={(e) => e.target.style.borderColor = '#4a90e2'}
+                onBlur={(e) => e.target.style.borderColor = '#ccc'}
+              />
+            </div>
+            <div style={{ overflowY: 'auto', maxHeight: '200px' }}>
+              {availableLanguages
+                .filter(lang => lang.toLowerCase().includes(languageSearch.toLowerCase()))
+                .map(lang => (
+                  <div
+                    key={lang}
+                    className="multiselect-option"
+                    onClick={() => toggleLanguage(lang)}
+                    style={{
+                      padding: '10px 12px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      background: selectedLanguages.includes(lang) ? '#f0f4ff' : 'white'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!selectedLanguages.includes(lang)) {
+                        e.currentTarget.style.background = '#f8f9fa';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!selectedLanguages.includes(lang)) {
+                        e.currentTarget.style.background = 'white';
+                      }
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedLanguages.includes(lang)}
+                      onChange={() => {}}
+                      style={{ pointerEvents: 'none' }}
+                    />
+                    <span>{lang}</span>
+                  </div>
+                ))}
+              {availableLanguages.filter(lang => lang.toLowerCase().includes(languageSearch.toLowerCase())).length === 0 && (
+                <div style={{ padding: '10px 12px', color: '#999', textAlign: 'center' }}>
+                  No languages found
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
