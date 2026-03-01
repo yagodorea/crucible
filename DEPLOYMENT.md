@@ -62,7 +62,7 @@ Save `key.json` — you'll add it as a GitHub secret later. **Do not commit it.*
 ```bash
 gcloud artifacts repositories create crucible \
   --repository-format=docker \
-  --location=southamerica-east1 \
+  --location=us-east1 \
   --description="Crucible Docker images"
 ```
 
@@ -74,7 +74,7 @@ gcloud artifacts repositories create crucible \
 
 ```bash
 gcloud compute instances create crucible-backend \
-  --zone=southamerica-east1-a \
+  --zone=us-east1-b \
   --machine-type=e2-micro \
   --image-family=debian-12 \
   --image-project=debian-cloud \
@@ -94,7 +94,7 @@ gcloud compute firewall-rules create allow-http \
 ### 3.3 SSH In and Install Docker
 
 ```bash
-gcloud compute ssh crucible-backend --zone=southamerica-east1-a
+gcloud compute ssh crucible-backend --zone=us-east1-b
 
 # On the VM:
 sudo apt-get update
@@ -108,7 +108,7 @@ Log out and back in for the group change to take effect.
 ### 3.4 Configure Docker for Artifact Registry (on the VM)
 
 ```bash
-gcloud auth configure-docker southamerica-east1-docker.pkg.dev --quiet
+gcloud auth configure-docker us-east1-docker.pkg.dev --quiet
 ```
 
 ---
@@ -119,18 +119,18 @@ From your local machine:
 
 ```bash
 # Authenticate Docker locally
-gcloud auth configure-docker southamerica-east1-docker.pkg.dev
+gcloud auth configure-docker us-east1-docker.pkg.dev
 
 # Build and push
 PROJECT_ID=$(gcloud config get-value project)
 
-docker build -t southamerica-east1-docker.pkg.dev/$PROJECT_ID/crucible/crucible-backend:latest apps/backend
+docker build -t us-east1-docker.pkg.dev/$PROJECT_ID/crucible/crucible-backend:latest apps/backend
 
-docker push southamerica-east1-docker.pkg.dev/$PROJECT_ID/crucible/crucible-backend:latest
+docker push us-east1-docker.pkg.dev/$PROJECT_ID/crucible/crucible-backend:latest
 
 # SSH to VM and run
-gcloud compute ssh crucible-backend --zone=southamerica-east1-a --command="
-  docker pull southamerica-east1-docker.pkg.dev/$PROJECT_ID/crucible/crucible-backend:latest && \
+gcloud compute ssh crucible-backend --zone=us-east1-b --command="
+  docker pull us-east1-docker.pkg.dev/$PROJECT_ID/crucible/crucible-backend:latest && \
   docker run -d \
     --name crucible-backend \
     --restart unless-stopped \
@@ -139,7 +139,7 @@ gcloud compute ssh crucible-backend --zone=southamerica-east1-a --command="
     -e PORT=5001 \
     -e SUPABASE_URL=<your-supabase-url> \
     -e SUPABASE_ANON_KEY=<your-supabase-anon-key> \
-    southamerica-east1-docker.pkg.dev/$PROJECT_ID/crucible/crucible-backend:latest
+    us-east1-docker.pkg.dev/$PROJECT_ID/crucible/crucible-backend:latest
 "
 ```
 
@@ -159,9 +159,9 @@ Go to your repo → Settings → Secrets and variables → Actions → Secrets, 
 |---|---|
 | `GCP_SA_KEY` | Contents of `key.json` (the full JSON) |
 | `GCP_PROJECT_ID` | Your GCP project ID (e.g. `crucible-12345`) |
-| `GCP_REGION` | `southamerica-east1` |
+| `GCP_REGION` | `us-east1` |
 | `GCP_INSTANCE_NAME` | `crucible-backend` |
-| `GCP_INSTANCE_ZONE` | `southamerica-east1-a` |
+| `GCP_INSTANCE_ZONE` | `us-east1-b` |
 | `SUPABASE_URL` | Your Supabase project URL |
 | `SUPABASE_ANON_KEY` | Your Supabase anon/public key |
 
@@ -204,7 +204,7 @@ Update the CORS config in `apps/backend/src/app.ts` to include your GitHub Pages
 ### Container Crashes
 ```bash
 # SSH to VM
-gcloud compute ssh crucible-backend --zone=southamerica-east1-a
+gcloud compute ssh crucible-backend --zone=us-east1-b
 
 # Check logs
 docker logs crucible-backend
